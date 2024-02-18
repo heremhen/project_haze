@@ -1,0 +1,33 @@
+scripts:
+  lock: python -m piptools compile -o requirements/main.txt
+  lock.dev: python -m piptools compile --extra dev -o requirements/dev.txt
+  lock.all:
+    - lock
+    - lock.dev
+  sync: python -m piptools sync requirements/main.txt
+  sync.dev: python -m piptools sync requirements/dev.txt
+  update:
+    - lock.all
+    - sync.dev
+  upgrade: python -m piptools compile --upgrade -o requirements/main.txt
+  upgrade.dev: python -m piptools compile --extra dev --upgrade -o requirements/dev.txt
+  upgrade.all:
+    - upgrade
+    - upgrade.dev
+  migration.revision: alembic revision --autogenerate
+  migration.sync: alembic upgrade head
+  run: gunicorn src.main:app --worker-class uvicorn.workers.UvicornWorker --port 5000
+  run.dev: uvicorn src.main:app --reload --port 5000
+  format:
+    - python -m black .
+    - python -m isort .
+  check.types: python -m mypy --check-untyped-defs .
+  check:
+    - python -m ruff .
+    - python -m black --check .
+    - python -m isort --check .
+    - python -m mypy --check-untyped-defs .
+    - python -m pytest .
+  tests: python -m pytest -vvv -x ./src/tests
+  tests.unit: python -m pytest -vvv -x ./src/tests/unit
+  tests.integration: python -m pytest -vvv -x ./src/tests/integration
