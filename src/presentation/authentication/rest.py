@@ -6,6 +6,7 @@ from src.application.authentication.dependency_injection import (
     create_access_token,
 )
 from src.infrastructure.application import Response, AuthenticationError
+from src.infrastructure.application.errors.entities import NotFoundError
 
 from .contracts import (
     RefreshAccessTokenRequestBody,
@@ -27,14 +28,17 @@ async def token_claim(
 ) -> Response[TokenClaimPublic]:
     """Claim for access and refresh tokens."""
 
-    user = authenticate_user(db, schema.login, schema.password)
-    if not user:
+    try:
+        user = await authenticate_user(schema.login, schema.password)
+        if not user:
+            raise AuthenticationError(message="Incorrect username or password")
+        access_token_expires = timedelta(minutes=15)
+        access_token = create_access_token(
+            data={"sub": user.username},
+            expires_delta=access_token_expires,
+        )
+    except NotFoundError:
         raise AuthenticationError(message="Incorrect username or password")
-    access_token_expires = timedelta(minutes=15)
-    access_token = create_access_token(
-        data={"sub": user.username},
-        expires_delta=access_token_expires,
-    )
     return TokenClaimPublic(access_token=access_token, token_type="bearer")
 
 

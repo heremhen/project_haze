@@ -1,1 +1,1 @@
-from . import orders, products  # noqa: F401
+from . import orders, products, authentication  # noqa: F401

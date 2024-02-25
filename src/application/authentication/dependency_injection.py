@@ -32,19 +32,12 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserFlat(**user_dict)
-
-
-def authenticate_user(db, username: str, password: str):
-    user = get_user(db, username)
-    if not user:
+async def authenticate_user(username: str, password: str):
+    async with transaction() as session:
+        db = await UsersRepository().get_by_username(username_=username)
+    if not db or not verify_password(password, db.password):
         return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
+    return db
 
 
 def create_access_token(
