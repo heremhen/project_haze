@@ -10,9 +10,8 @@ from pydantic import ValidationError
 from src.config import settings
 from src.domain.authentication import TokenPayload
 from src.domain.users import UserFlat, UsersRepository
-from src.infrastructure.application import AuthenticationError
+from src.infrastructure.application import AuthenticationError, BadRequestError
 from src.infrastructure.database import transaction
-from src.infrastructure.application import BadRequestError
 
 __all__ = ("authenticate_user", "get_current_user", "get_current_active_user")
 
@@ -32,12 +31,17 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def authenticate_user(username: str, password: str):
+async def get_user(username: str):
     async with transaction() as session:
-        db = await UsersRepository().get_by_username(username_=username)
-    if not db or not verify_password(password, db.password):
+        user = await UsersRepository().get_by_username(username_=username)
+    return user
+
+
+async def authenticate_user(username: str, password: str):
+    user = await get_user(username)
+    if not user or not verify_password(password, user.password):
         return False
-    return db
+    return user
 
 
 def create_access_token(

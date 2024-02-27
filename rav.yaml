@@ -19,15 +19,15 @@ scripts:
   run: gunicorn src.main:app --worker-class uvicorn.workers.UvicornWorker --port 5000
   run.dev: uvicorn src.main:app --reload --port 5000
   format:
-    - python -m black .
-    - python -m isort .
-  check.types: python -m mypy --check-untyped-defs .
+    - python -m black ./src
+    - python -m isort ./src
+  check.types: python -m mypy --check-untyped-defs ./src
   check:
-    - python -m ruff .
-    - python -m black --check .
-    - python -m isort --check .
-    - python -m mypy --check-untyped-defs .
-    - python -m pytest .
+    - python -m ruff ./src
+    - python -m black --check ./src
+    - python -m isort --check ./src
+    - python -m mypy --check-untyped-defs ./src
+    - python -m pytest ./src
   tests: python -m pytest -vvv -x ./src/tests
   tests.unit: python -m pytest -vvv -x ./src/tests/unit
   tests.integration: python -m pytest -vvv -x ./src/tests/integration

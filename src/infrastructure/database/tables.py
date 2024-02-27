@@ -1,6 +1,6 @@
-from typing import TypeVar
+from typing import TypeVar, Union
 
-from sqlalchemy import Column, ForeignKey, Integer, MetaData, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, MetaData, String
 from sqlalchemy.orm import Mapped, declarative_base, relationship
 
 __all__ = ("Base", "UsersTable", "ProductsTable", "OrdersTable")
@@ -32,6 +32,9 @@ class UsersTable(Base):
 
     username: str = Column(String, nullable=False)
     password: str = Column(String, nullable=False)
+    email: str = Column(String, nullable=True, default=None)
+    full_name: str = Column(String, nullable=True, default=None)
+    disabled: bool = Column(Boolean, nullable=True, default=None)
 
 
 class ProductsTable(Base):

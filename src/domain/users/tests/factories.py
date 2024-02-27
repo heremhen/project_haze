@@ -5,7 +5,6 @@ This namespace includes any sorts of factories:
     * etc.
 """
 
-
 from polyfactory.factories.pydantic_factory import ModelFactory
 
 from src.infrastructure.database import transaction

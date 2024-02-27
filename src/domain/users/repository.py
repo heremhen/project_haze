@@ -21,7 +21,7 @@ class UsersRepository(BaseRepository[UsersTable]):
     async def create(self, schema: UserUncommited) -> UserFlat:
         instance: UsersTable = await self._save(schema.model_dump())
         return UserFlat.model_validate(instance)
-    
+
     async def get_by_username(self, username_: str) -> UserFlat:
         instance = await self._get(key="username", value=username_)
         return UserFlat.model_validate(instance)

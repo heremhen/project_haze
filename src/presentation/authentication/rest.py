@@ -1,11 +1,16 @@
 from datetime import timedelta
+
 from fastapi import APIRouter, Request, status
+from jose import JWTError, jwt
 
 from src.application.authentication.dependency_injection import (
     authenticate_user,
     create_access_token,
+    get_user,
 )
-from src.infrastructure.application import Response, AuthenticationError
+from src.config import settings
+from src.domain.authentication.entities import TokenPayload
+from src.infrastructure.application import AuthenticationError, Response
 from src.infrastructure.application.errors.entities import NotFoundError
 
 from .contracts import (
@@ -23,7 +28,6 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
     status_code=status.HTTP_201_CREATED,
 )
 async def token_claim(
-    request: Request,
     schema: TokenClaimRequestBody,
 ) -> Response[TokenClaimPublic]:
     """Claim for access and refresh tokens."""
@@ -48,13 +52,34 @@ async def token_claim(
     status_code=status.HTTP_201_CREATED,
 )
 async def token_refresh(
-    request: Request,
     schema: RefreshAccessTokenRequestBody,
 ) -> Response[TokenClaimPublic]:
     """Refresh the access token."""
 
-    # 🔗 https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/
-    raise NotImplementedError
+    try:
+        payload = jwt.decode(
+            schema.refresh,
+            settings.authentication.access_token.secret_key,
+            algorithms=[settings.authentication.algorithm],
+        )
+        username: str = payload.get("sub")
+        if username is None:
+            raise AuthenticationError(message="Could not validate credentials")
+        token_data = TokenPayload(sub=username, exp=payload.get("exp"))
+    except JWTError:
+        raise AuthenticationError(message="Could not validate credentials")
+
+    user = await get_user(username=token_data.username)
+    if user is None:
+        raise AuthenticationError(message="Could not validate credentials")
+
+    access_token_expires = timedelta(minutes=15)
+    access_token = create_access_token(
+        data={"sub": user.username},
+        expires_delta=access_token_expires,
+    )
+
+    return TokenClaimPublic(access_token=access_token, token_type="bearer")
 
 
 # @app.get("/users/me/", response_model=User)

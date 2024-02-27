@@ -2,7 +2,6 @@
 This module is responsible for describing internal application errors.
 """
 
-
 from typing import Any
 
 from starlette import status
