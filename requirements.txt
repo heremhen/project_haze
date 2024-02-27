@@ -21,3 +21,9 @@ rav>=0.0.9
 black>=24.2.0
 isort>=5.13.2
 ruff>=0.2.2
+# Newer ones:
+flaml[automl]==2.1.1
+pandas==2.2.1
+numpy==1.26.4
+scikit-learn==1.4.1.post1
+catboost==1.2.3

@@ -64,3 +64,6 @@ __pycache__/
 # tox
 .tox
 *.egg-info
+
+# revisions
+# src/infrastructure/database/migrations/versions

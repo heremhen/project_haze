@@ -36,4 +36,5 @@ app: FastAPI = application_factory(
     startup_tasks=[],
     shutdown_tasks=[],
     startup_processes=[],
+    swagger_ui_parameters={"defaultModelsExpandDepth": 1},
 )

@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class APIUrlsSettings(BaseModel):
     """API public urls settings."""
 
-    docs: str = "/docs"
+    docs: str = "/"
     redoc: str = "/redoc"
 
 
