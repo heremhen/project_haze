@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, status
 from jose import JWTError, jwt
 
 from src.application.authentication.dependency_injection import (
