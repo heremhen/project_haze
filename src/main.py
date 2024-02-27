@@ -28,9 +28,10 @@ logger.add(
 app: FastAPI = application_factory(
     debug=settings.debug,
     rest_routers=(
+        presentation.health.rest.router,
+        presentation.authentication.rest.router,
         presentation.products.rest.router,
         presentation.orders.rest.router,
-        presentation.authentication.rest.router,
     ),
     startup_tasks=[],
     shutdown_tasks=[],
