@@ -11,14 +11,11 @@ from src.infrastructure.application import ResponseMulti
 from src.infrastructure.application.errors.entities import NotFoundError
 from src.presentation.registry.contracts import RegistryPublic
 
-router = APIRouter(prefix="/r", tags=["Registry"])
+router = APIRouter(prefix="/r", tags=["Files"])
 
 
 @router.get("/cdn/{name}", response_class=FileResponse)
-async def get_file(
-    name: str,
-    user: UserFlat = Depends(authentication.get_current_user),
-):
+async def get_file(name: str):
     """Get a file."""
     path = f"static/public/{name}"
     if not os.path.exists(path):

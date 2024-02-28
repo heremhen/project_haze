@@ -1,14 +1,15 @@
 from typing import Optional
 
 from pydantic.config import ConfigDict
+from pydantic import Field
 
 from src.infrastructure.application import PublicEntity
 
 
 class _UserBase(PublicEntity):
     username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
+    email: Optional[str] = Field(default=None)
+    full_name: Optional[str] = Field(default=None)
 
 
 class UserCreateRequestBody(_UserBase):

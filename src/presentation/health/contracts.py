@@ -1,9 +1,9 @@
 from typing import List
 
-from src.infrastructure.application import PublicEntity
+from src.infrastructure.application import InternalEntity
 
 
-class MemoryInfo(PublicEntity):
+class MemoryInfo(InternalEntity):
     """The system's memory information."""
 
     total: int
@@ -13,7 +13,7 @@ class MemoryInfo(PublicEntity):
     free: int
 
 
-class DiskInfo(PublicEntity):
+class DiskInfo(InternalEntity):
     """The system's disk drive information."""
 
     total: int
@@ -22,7 +22,7 @@ class DiskInfo(PublicEntity):
     percent: float
 
 
-class SystemInfo(PublicEntity):
+class SystemInfo(InternalEntity):
     """Servers general system information."""
 
     system: str
@@ -32,7 +32,7 @@ class SystemInfo(PublicEntity):
     disk: DiskInfo
 
 
-class StatusResponse(PublicEntity):
+class StatusResponse(InternalEntity):
     """Health status of up and running system."""
 
     status: str

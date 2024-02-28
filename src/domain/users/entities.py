@@ -1,4 +1,5 @@
 from typing import Optional
+from pydantic import Field
 
 from src.infrastructure.application import InternalEntity
 
@@ -10,9 +11,9 @@ class UserUncommited(InternalEntity):
 
     username: str
     password: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = None
+    email: Optional[str] = Field(default=None)
+    full_name: Optional[str] = Field(default=None)
+    disabled: Optional[bool] = Field(default=None)
 
 
 class UserFlat(UserUncommited):

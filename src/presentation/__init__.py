@@ -5,4 +5,5 @@ from . import (  # noqa: F401
     products,
     registry,
     users,
+    models,
 )

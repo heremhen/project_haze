@@ -1,28 +1,31 @@
 from enum import IntEnum
+from typing import List, Optional
 
-from pydantic import Field
-
-from src.infrastructure.application import PublicEntity
+from src.infrastructure.application import InternalEntity
 
 __all__ = ("TimeBudgetEnum", "ModelsFlat", "ModelsUncommited")
 
 
 class TimeBudgetEnum(IntEnum):
+    """Train time by seconds."""
+
     quick = 1
     normal = 100
     compact = 500
 
 
-class _ModelsBase(PublicEntity):
-    name: str = Field(...)
-    description: str = Field(...)
-    target_attribute: str = Field(...)
-    test_size_threshold: float = Field(...)
-    dropped_columns = Field(...)
-    time_budget: int = Field(...)
-    version: float = Field(...)
-    registry_id: int = Field(...)
-    inherited_from: int = Field(...)
+class _ModelsBase(InternalEntity):
+    name: Optional[str]
+    description: Optional[str]
+    target_attribute: str
+    test_size_threshold: Optional[float]
+    dropped_columns: Optional[List[str]]
+    time_budget: Optional[TimeBudgetEnum]
+    version: Optional[float]
+    registry_id: int
+    inherited_from_id: Optional[int]
+    pipeline_type_id: int
+    user_id: int
 
 
 class ModelsUncommited(_ModelsBase):

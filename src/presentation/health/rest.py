@@ -40,6 +40,6 @@ async def health():
         **{
             "status": "development" if settings.debug else "active",
             "database": db_status,
-            "systemInfo": SystemInfo(**system_info),
+            "system_info": SystemInfo(**system_info),
         }
     )

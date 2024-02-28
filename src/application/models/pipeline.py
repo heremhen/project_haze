@@ -47,7 +47,7 @@ async def auto_ml__(
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=threshold, random_state=42
     )
-    automl = AutoML(mlflow_logging=False)
+    automl = AutoML()
     if pipeline_type == "regression":
         automl_settings = {
             "time_budget": time_budget,

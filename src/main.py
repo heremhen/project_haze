@@ -33,8 +33,9 @@ app: FastAPI = application_factory(
         presentation.authentication.rest.router,
         presentation.users.rest.router,
         presentation.registry.rest.router,
-        presentation.products.rest.router,
-        presentation.orders.rest.router,
+        presentation.models.rest.router,
+        # presentation.products.rest.router,    # Architechure test endpoints.
+        # presentation.orders.rest.router,      # Architechure test endpoints.
     ),
     startup_tasks=[],
     shutdown_tasks=[],

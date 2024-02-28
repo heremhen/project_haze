@@ -116,6 +116,7 @@ class ModelsTable(Base):
     pipeline_type_id: int = Column(
         ForeignKey(PipelineTypesTable.id), nullable=False
     )
+    user_id: int = Column(ForeignKey(UsersTable.id), nullable=False)
 
     registry: "Mapped[RegistryTable]" = relationship(
         "RegistryTable", foreign_keys=[registry_id], uselist=False
@@ -125,4 +126,7 @@ class ModelsTable(Base):
     )
     pipe_type: "Mapped[PipelineTypesTable]" = relationship(
         "PipelineTypesTable", foreign_keys=[pipeline_type_id], uselist=False
+    )
+    pipe_type: "Mapped[UsersTable]" = relationship(
+        "UsersTable", foreign_keys=[user_id], uselist=False
     )
