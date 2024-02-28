@@ -12,6 +12,7 @@ python-jose[cryptography]==3.3.0
 uvicorn[standard]==0.27.1
 websockets==12.0
 psutil==5.9.8
+python-multipart==0.0.9
 
 # Machine learning libs
 flaml[automl]==2.1.1

@@ -14,7 +14,15 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, declarative_base, relationship
 
-__all__ = ("Base", "UsersTable", "ProductsTable", "OrdersTable")
+__all__ = (
+    "Base",
+    "UsersTable",
+    "ProductsTable",
+    "OrdersTable",
+    "RegistryTable",
+    "PipelineTypesTable",
+    "ModelsTable",
+)
 
 meta = MetaData(
     naming_convention={
@@ -84,22 +92,37 @@ class RegistryTable(Base):  # FilesTable
     user: "Mapped[UsersTable]" = relationship("UsersTable", uselist=False)
 
 
+class PipelineTypesTable(Base):
+    __tablename__ = "pipeline_types"
+
+    name: str = Column(String, nullable=False)
+
+
 class ModelsTable(Base):
     __tablename__ = "models"
 
-    registry_id: int = Column(ForeignKey(RegistryTable.id), nullable=False)
-    target_attribute: str = Column(String, nullable=False)
-    test_size_threshold: float = Column(Float, nullable=False)
     name: str = Column(String, nullable=False, default="CH4NGE ME")
     description: str = Column(String, nullable=True)
+    target_attribute: str = Column(String, nullable=False)
+    test_size_threshold: float = Column(Float, nullable=False)
     dropped_columns = Column(PickleType, nullable=True)
     time_budget: int = Column(Integer, nullable=False)
     version: float = Column(Float, nullable=False, default=1.0)
-    inherited_from: int = Column(ForeignKey(RegistryTable.id), nullable=True)
+
+    registry_id: int = Column(ForeignKey(RegistryTable.id), nullable=False)
+    inherited_from_id: int = Column(
+        ForeignKey(RegistryTable.id), nullable=True
+    )
+    pipeline_type_id: int = Column(
+        ForeignKey(PipelineTypesTable.id), nullable=False
+    )
 
     registry: "Mapped[RegistryTable]" = relationship(
         "RegistryTable", foreign_keys=[registry_id], uselist=False
     )
     inheritance: "Mapped[RegistryTable]" = relationship(
-        "RegistryTable", foreign_keys=[inherited_from], uselist=False
+        "RegistryTable", foreign_keys=[inherited_from_id], uselist=False
+    )
+    pipe_type: "Mapped[PipelineTypesTable]" = relationship(
+        "PipelineTypesTable", foreign_keys=[pipeline_type_id], uselist=False
     )

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
 from src import presentation
@@ -31,6 +32,7 @@ app: FastAPI = application_factory(
         presentation.health.rest.router,
         presentation.authentication.rest.router,
         presentation.users.rest.router,
+        presentation.registry.rest.router,
         presentation.products.rest.router,
         presentation.orders.rest.router,
     ),
@@ -39,3 +41,5 @@ app: FastAPI = application_factory(
     startup_processes=[],
     swagger_ui_parameters={"defaultModelsExpandDepth": 1},
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")

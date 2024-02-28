@@ -1,1 +1,8 @@
-from . import authentication, health, orders, products, users  # noqa: F401
+from . import (  # noqa: F401
+    authentication,
+    health,
+    orders,
+    products,
+    registry,
+    users,
+)

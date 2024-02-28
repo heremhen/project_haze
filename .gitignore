@@ -66,4 +66,5 @@ __pycache__/
 *.egg-info
 
 # revisions
-# src/infrastructure/database/migrations/versions
+src/infrastructure/database/migrations/versions/*
+static/*

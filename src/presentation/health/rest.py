@@ -13,7 +13,7 @@ from src.presentation.health.contracts import (
     SystemInfo,
 )
 
-router = APIRouter(prefix="/health", tags=["health"])
+router = APIRouter(prefix="/health", tags=["Health"])
 
 
 @router.get("/", include_in_schema=False)

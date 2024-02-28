@@ -25,7 +25,7 @@ __all__ = (
     "create_access_token",
 )
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["scrypt"], deprecated="auto")
 
 get_bearer_token = HTTPBearer(
     bearerFormat="Bearer",

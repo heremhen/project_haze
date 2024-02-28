@@ -1,11 +1,7 @@
 from fastapi import APIRouter, Depends, Request, status
 
 from src.application import authentication, products
-from src.domain.products import (
-    ProductFlat,
-    ProductRepository,
-    ProductUncommited,
-)
+from src.domain.products import ProductFlat, ProductUncommited
 from src.domain.users import UserFlat
 from src.infrastructure.application import Response, ResponseMulti
 
@@ -34,7 +30,7 @@ async def product_create(
 ) -> Response[ProductPublic]:
     """Create a new product."""
 
-    _product: ProductFlat = await ProductRepository().create(
+    _product: ProductFlat = await products.create(
         ProductUncommited(**schema.model_dump())
     )
     _product_public = ProductPublic.model_validate(_product)

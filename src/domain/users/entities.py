@@ -2,7 +2,7 @@ from typing import Optional, Union
 
 from src.infrastructure.application import InternalEntity
 
-__all__ = ("UserUncommited", "UserFlat")
+__all__ = ("UserUncommited", "UserFlat", "UserWithoutPassword")
 
 
 class UserUncommited(InternalEntity):
@@ -16,6 +16,12 @@ class UserUncommited(InternalEntity):
 
 
 class UserFlat(UserUncommited):
-    """Existed product representation."""
+    """Existed user representation."""
 
     id: int
+
+
+class UserWithoutPassword(UserFlat):
+    """User representation without password."""
+
+    password: Optional[str] = None
