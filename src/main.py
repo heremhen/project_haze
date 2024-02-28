@@ -40,6 +40,7 @@ app: FastAPI = application_factory(
     shutdown_tasks=[],
     startup_processes=[],
     swagger_ui_parameters={"defaultModelsExpandDepth": 1},
+    docs_url=settings.public_api.urls.docs,
 )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

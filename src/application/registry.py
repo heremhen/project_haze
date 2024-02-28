@@ -10,11 +10,16 @@ from src.domain.registry import (
 from src.infrastructure.database import transaction
 
 
-async def get_all() -> list[RegistryFlat]:
+async def get_all(user_id: int) -> list[RegistryFlat]:
     """Get all registries from the database."""
 
     async with transaction():
-        return [registry async for registry in RegistryRepository().all()]
+        return [
+            registry
+            async for registry in RegistryRepository().all_by_user(
+                user_id=user_id
+            )
+        ]
 
 
 async def create(
@@ -47,4 +52,4 @@ async def create(
                 RegistryUncommited(**_registry_dict)
             )
             responses.append(_registry)
-        return responses
+    return responses

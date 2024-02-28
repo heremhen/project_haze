@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, status
 
 from src.application import users
 from src.application.authentication.dependency_injection import (

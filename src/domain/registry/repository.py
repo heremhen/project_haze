@@ -1,4 +1,5 @@
 from typing import AsyncGenerator
+from sqlalchemy import and_
 
 from src.infrastructure.database import BaseRepository, RegistryTable
 
@@ -25,3 +26,10 @@ class RegistryRepository(BaseRepository[RegistryTable]):
     async def get_by_url(self, url_: str) -> RegistryFlat:
         instance = await self._get(key="url", value=url_)
         return RegistryFlat.model_validate(instance)
+
+    async def all_by_user(
+        self, user_id: int
+    ) -> AsyncGenerator[RegistryFlat, None]:
+        condition = and_(self.schema_class.user_id == user_id)
+        async for instance in self._all(condition):
+            yield RegistryFlat.model_validate(instance)

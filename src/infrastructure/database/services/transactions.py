@@ -14,7 +14,10 @@ __all__ = ("transaction",)
 
 @asynccontextmanager
 async def transaction() -> AsyncGenerator[AsyncSession, None]:
-    """Use this context manager to perform database transactions. in any coroutine in the source code."""
+    """
+    Use this context manager to perform database transactions.
+    in any coroutine in the source code.
+    """
 
     session: AsyncSession = create_session()
     CTX_SESSION.set(session)

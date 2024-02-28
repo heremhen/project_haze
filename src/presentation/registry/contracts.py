@@ -1,6 +1,3 @@
-from typing import Optional
-
-from fastapi import File, UploadFile
 from pydantic import Field
 
 from src.infrastructure.application import PublicEntity

@@ -14,6 +14,8 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=UserWarning)
 
+__all__ = ("save_model_pipeline", "auto_ml__", "predict_model_pipeline")
+
 
 async def save_model_pipeline(automl) -> Union[str, None]:
     """Saves the dataset trained file in the storage."""

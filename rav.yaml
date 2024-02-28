@@ -5,8 +5,8 @@ scripts:
     - python -m pip install -r requirements/dev.txt
   migration.revision: alembic revision --autogenerate
   migration.sync: alembic upgrade head
-  prod: gunicorn src.main:app --worker-class uvicorn.workers.UvicornWorker --port 5000
-  dev: uvicorn src.main:app --reload --port 5000
+  prod: python -m gunicorn src.main:app --worker-class uvicorn.workers.UvicornWorker --port 5000
+  dev: python -m uvicorn src.main:app --reload --port 5000
   format:
     - python -m black ./src
     - python -m isort ./src

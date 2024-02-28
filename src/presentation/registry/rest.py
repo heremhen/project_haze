@@ -1,15 +1,13 @@
 import os
-import shutil
-import uuid
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, UploadFile, status
 from fastapi.responses import FileResponse
 
 from src.application import authentication, registry
-from src.domain.registry.entities import RegistryFlat, RegistryUncommited
+from src.domain.registry.entities import RegistryFlat
 from src.domain.users import UserFlat
-from src.infrastructure.application import Response, ResponseMulti
+from src.infrastructure.application import ResponseMulti
 from src.infrastructure.application.errors.entities import NotFoundError
 from src.presentation.registry.contracts import RegistryPublic
 
@@ -17,18 +15,32 @@ router = APIRouter(prefix="/r", tags=["Registry"])
 
 
 @router.get("/cdn/{name}", response_class=FileResponse)
-def get_file(
+async def get_file(
     name: str,
     user: UserFlat = Depends(authentication.get_current_user),
 ):
+    """Get a file."""
     path = f"static/public/{name}"
     if not os.path.exists(path):
         raise NotFoundError(message="File not found")
     return FileResponse(path)
 
 
+@router.get("/my/files")
+async def get_own_files(
+    user: UserFlat = Depends(authentication.get_current_user),
+) -> ResponseMulti[RegistryPublic]:
+    """Get user files."""
+
+    _registry: list[RegistryFlat] = await registry.get_all(
+        user_id=user.id,
+    )
+
+    return ResponseMulti[RegistryPublic](result=_registry)
+
+
 @router.post("/lines", include_in_schema=False)
-def get_lines(
+async def get_lines(
     file: bytes = File(description="Файл оруулж өгнө үү."),
     user: UserFlat = Depends(authentication.get_current_user),
 ):
@@ -45,9 +57,12 @@ async def store_uploadfiles(
     ),
     user: UserFlat = Depends(authentication.get_current_user),
 ) -> ResponseMulti[RegistryPublic]:
+    """Store multiple files."""
 
     _registry: list[RegistryFlat] = await registry.create(
-        path, upload_files, user.id
+        path=path,
+        upload_files=upload_files,
+        user_id=user.id,
     )
 
     return ResponseMulti[RegistryPublic](result=_registry)

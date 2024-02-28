@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 
 from src.infrastructure.application import InternalEntity
 

@@ -4,8 +4,8 @@ from src.infrastructure.application import PublicEntity
 
 
 class _OrderBase(PublicEntity):
-    amount: int = Field(description="OpenAPI description")
-    product_id: int = Field(description="OpenAPI description")
+    amount: int = Field(...)
+    product_id: int = Field(...)
 
 
 class OrderCreateRequestBody(_OrderBase):

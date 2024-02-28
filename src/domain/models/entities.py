@@ -4,7 +4,7 @@ from pydantic import Field
 
 from src.infrastructure.application import PublicEntity
 
-__all__ = ("TimeBudgetEnum", "OrderFlat")
+__all__ = ("TimeBudgetEnum", "ModelsFlat", "ModelsUncommited")
 
 
 class TimeBudgetEnum(IntEnum):

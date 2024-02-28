@@ -1,6 +1,6 @@
 from typing import Any, AsyncGenerator, Generic, Type
 
-from sqlalchemy import asc, delete, desc, func, select, update
+from sqlalchemy import asc, delete, desc, func, select, update, or_
 from sqlalchemy.engine import Result
 
 from src.infrastructure.application import (
@@ -112,10 +112,21 @@ class BaseRepository(Session, Generic[ConcreteTable]):
         except self._ERRORS:
             raise DatabaseError
 
-    async def _all(self) -> AsyncGenerator[ConcreteTable, None]:
-        result: Result = await self.execute(select(self.schema_class))
-        schemas = result.scalars().all()
+    # async def _all(self) -> AsyncGenerator[ConcreteTable, None]:
+    #     result: Result = await self.execute(select(self.schema_class))
+    #     schemas = result.scalars().all()
 
+    #     for schema in schemas:
+    #         yield schema
+
+    async def _all(
+        self, condition=None
+    ) -> AsyncGenerator[ConcreteTable, None]:
+        query = select(self.schema_class)
+        if condition:
+            query = query.where(condition)
+        result: Result = await self.execute(query)
+        schemas = result.scalars().all()
         for schema in schemas:
             yield schema
 
