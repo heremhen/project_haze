@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Union
+from typing import Annotated, Optional, Union
 
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security.http import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
@@ -13,14 +13,34 @@ from src.domain.users import UserFlat, UsersRepository
 from src.infrastructure.application import AuthenticationError, BadRequestError
 from src.infrastructure.database import transaction
 
-__all__ = ("authenticate_user", "get_current_user", "get_current_active_user")
+__all__ = (
+    "authenticate_user",
+    "get_current_user",
+    "get_current_active_user",
+    "create_refresh_token",
+    "get_token",
+    "verify_password",
+    "get_password_hash",
+    "get_user",
+    "create_access_token",
+)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_oauth = OAuth2PasswordBearer(
-    tokenUrl="/auth/openapi",
-    scheme_name=settings.authentication.scheme,
+get_bearer_token = HTTPBearer(
+    bearerFormat="Bearer",
+    scheme_name="AuthJWTCookieAccess",
+    description="Enter your access token here for the required api endpoints.",
+    auto_error=False,
 )
+
+
+async def get_token(
+    auth: Optional[HTTPAuthorizationCredentials] = Depends(get_bearer_token),
+) -> str:
+    if auth is None:
+        return None
+    return auth.credentials
 
 
 def verify_password(plain_password, hashed_password):
@@ -31,22 +51,36 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(username: str):
-    async with transaction() as session:
+async def get_user(username: str) -> UserFlat:
+    async with transaction():
         user = await UsersRepository().get_by_username(username_=username)
     return user
 
 
-async def authenticate_user(username: str, password: str):
+async def authenticate_user(
+    username: str, password: str
+) -> Union[UserFlat, False]:
     user = await get_user(username)
     if not user or not verify_password(password, user.password):
         return False
     return user
 
 
+def create_refresh_token(
+    data: dict, secret_key: str, expires_delta: timedelta = None
+) -> str:
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=90)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, secret_key, algorithm="HS256")
+
+
 def create_access_token(
     data: dict, expires_delta: Union[timedelta, None] = None
-):
+) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -61,7 +95,9 @@ def create_access_token(
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_oauth)) -> UserFlat:
+async def get_current_user(token: str = Depends(get_token)) -> UserFlat:
+    if token is None:
+        raise AuthenticationError(message="You're signed out.")
     try:
         payload = jwt.decode(
             token,
@@ -76,7 +112,9 @@ async def get_current_user(token: str = Depends(oauth2_oauth)) -> UserFlat:
         raise AuthenticationError
 
     async with transaction():
-        user = await UsersRepository().get(id_=token_payload.sub)
+        user = await UsersRepository().get_by_username(
+            username_=token_payload.sub
+        )
 
     # TODO: Check if the token is in the blacklist
 

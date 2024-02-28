@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 
 from src.infrastructure.application import InternalEntity
 
@@ -10,9 +10,9 @@ class UserUncommited(InternalEntity):
 
     username: str
     password: str
-    email: Union[str, None] = None
-    full_name: Union[str, None] = None
-    disabled: Union[bool, None] = None
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    disabled: Optional[bool] = None
 
 
 class UserFlat(UserUncommited):

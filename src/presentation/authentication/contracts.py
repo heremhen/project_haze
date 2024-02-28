@@ -4,14 +4,18 @@ from src.infrastructure.application import PublicEntity
 
 
 class TokenClaimRequestBody(PublicEntity):
-    login: str = Field("OpenAPI documentation")
-    password: str = Field("OpenAPI documentation")
+    login: str = Field(...)
+    password: str = Field(...)
 
 
 class RefreshAccessTokenRequestBody(PublicEntity):
-    refresh: str = Field("OpenAPI documentation")
+    refresh: str = Field(...)
 
 
 class TokenClaimPublic(PublicEntity):
-    access: str = Field("OpenAPI documentation")
-    refresh: str = Field("OpenAPI documentation")
+    access: str = Field(...)
+    refresh: str = Field(...)
+
+
+class RefreshTokenClaimPublic(PublicEntity):
+    access: str = Field(...)

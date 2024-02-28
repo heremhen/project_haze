@@ -6,15 +6,18 @@ from jose import JWTError, jwt
 from src.application.authentication.dependency_injection import (
     authenticate_user,
     create_access_token,
+    create_refresh_token,
     get_user,
 )
 from src.config import settings
 from src.domain.authentication.entities import TokenPayload
+from src.domain.users.entities import UserFlat
 from src.infrastructure.application import AuthenticationError, Response
 from src.infrastructure.application.errors.entities import NotFoundError
 
 from .contracts import (
     RefreshAccessTokenRequestBody,
+    RefreshTokenClaimPublic,
     TokenClaimPublic,
     TokenClaimRequestBody,
 )
@@ -24,7 +27,6 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post(
     "/token",
-    response_model=Response[TokenClaimPublic],
     status_code=status.HTTP_201_CREATED,
 )
 async def token_claim(
@@ -33,27 +35,38 @@ async def token_claim(
     """Claim for access and refresh tokens."""
 
     try:
-        user = await authenticate_user(schema.login, schema.password)
+        user: UserFlat = await authenticate_user(schema.login, schema.password)
         if not user:
             raise AuthenticationError(message="Incorrect username or password")
-        access_token_expires = timedelta(minutes=15)
+        refresh_token_expires = timedelta(days=7)
+        refresh_token = create_refresh_token(
+            data={"sub": user.username},
+            secret_key=settings.authentication.refresh_token.secret_key,
+            expires_delta=refresh_token_expires,
+        )
+        access_token_expires = timedelta(minutes=30)
         access_token = create_access_token(
             data={"sub": user.username},
             expires_delta=access_token_expires,
         )
+        _tokens = {
+            "access": access_token,
+            "refresh": refresh_token,
+        }
     except NotFoundError:
         raise AuthenticationError(message="Incorrect username or password")
-    return TokenClaimPublic(access_token=access_token, token_type="bearer")
+
+    _tokens_public = TokenClaimPublic.model_validate(_tokens)
+    return Response[TokenClaimPublic](result=_tokens_public)
 
 
 @router.post(
     "/token/refresh",
-    response_model=Response[TokenClaimPublic],
     status_code=status.HTTP_201_CREATED,
 )
 async def token_refresh(
     schema: RefreshAccessTokenRequestBody,
-) -> Response[TokenClaimPublic]:
+) -> Response[RefreshTokenClaimPublic]:
     """Refresh the access token."""
 
     try:
@@ -69,28 +82,15 @@ async def token_refresh(
     except JWTError:
         raise AuthenticationError(message="Could not validate credentials")
 
-    user = await get_user(username=token_data.username)
+    user = await get_user(username=token_data.sub)
     if user is None:
         raise AuthenticationError(message="Could not validate credentials")
 
-    access_token_expires = timedelta(minutes=15)
+    access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
         data={"sub": user.username},
         expires_delta=access_token_expires,
     )
 
-    return TokenClaimPublic(access_token=access_token, token_type="bearer")
-
-
-# @app.get("/users/me/", response_model=User)
-# async def read_users_me(
-#     current_user: Annotated[User, Depends(get_current_active_user)]
-# ):
-#     return current_user
-
-
-# @app.get("/users/me/items/")
-# async def read_own_items(
-#     current_user: Annotated[User, Depends(get_current_active_user)]
-# ):
-#     return [{"item_id": "Foo", "owner": current_user.username}]
+    _claim_public = RefreshTokenClaimPublic(access=access_token)
+    return Response[RefreshTokenClaimPublic](result=_claim_public)

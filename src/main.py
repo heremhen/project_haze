@@ -30,6 +30,7 @@ app: FastAPI = application_factory(
     rest_routers=(
         presentation.health.rest.router,
         presentation.authentication.rest.router,
+        presentation.users.rest.router,
         presentation.products.rest.router,
         presentation.orders.rest.router,
     ),

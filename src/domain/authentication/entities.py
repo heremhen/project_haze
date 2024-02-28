@@ -8,7 +8,7 @@ __all__ = (
 
 
 class TokenPayload(InternalEntity):
-    sub: int
+    sub: str
     exp: int
 
 

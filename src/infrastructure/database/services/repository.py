@@ -106,6 +106,7 @@ class BaseRepository(Session, Generic[ConcreteTable]):
         try:
             schema = self.schema_class(**payload)
             self._session.add(schema)
+            await self._session.commit()
             await self._session.flush()
             await self._session.refresh(schema)
             return schema

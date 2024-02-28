@@ -43,9 +43,9 @@ ConcreteTable = TypeVar("ConcreteTable", bound=Base)
 class UsersTable(Base):
     __tablename__ = "users"
 
-    username: str = Column(String, nullable=False)
+    username: str = Column(String, nullable=False, unique=True)
     password: str = Column(String, nullable=False)
-    email: str = Column(String, nullable=True, default=None)
+    email: str = Column(String, nullable=True, default=None, unique=True)
     full_name: str = Column(String, nullable=True, default=None)
     disabled: bool = Column(Boolean, nullable=True, default=None)
 

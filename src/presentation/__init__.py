@@ -1,1 +1,1 @@
-from . import authentication, health, orders, products  # noqa: F401
+from . import authentication, health, orders, products, users  # noqa: F401
