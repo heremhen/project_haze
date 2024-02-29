@@ -22,7 +22,8 @@ def generate_random_hsl() -> str:
 
 def generate_random_coordinates() -> List[str]:
     coordinates = [
-        f"{random.randint(0, 100)}% {random.randint(0, 100)}%" for _ in range(6)
+        f"{random.randint(0, 100)}% {random.randint(0, 100)}%"
+        for _ in range(6)
     ]
     return coordinates
 
@@ -32,13 +33,13 @@ def generate_css() -> str:
     gradient_colors_hsl = [generate_random_hsl() for _ in range(6)]
     gradient_coordinates = generate_random_coordinates()
 
-    css_background = f"background-color: hsl({bg_color_hsl}); background-image:"
+    css_background = (
+        f"background-color: hsl({bg_color_hsl}); background-image:"
+    )
 
     for index, color in enumerate(gradient_colors_hsl):
         coordinates = gradient_coordinates[index]
-        css_background += (
-            f" radial-gradient(at {coordinates}, hsl({color}) 0px, transparent 50%),"
-        )
+        css_background += f" radial-gradient(at {coordinates}, hsl({color}) 0px, transparent 50%),"
 
     css_background = css_background[:-1]
 

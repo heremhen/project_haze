@@ -29,9 +29,12 @@ class _ModelsBase(InternalEntity):
     target_attribute: str
     test_size_threshold: Optional[float]
     time_budget: Optional[TimeBudgetEnum]
-    pipeline_type: Optional[PipelineTypeEnum]
+    pipeline_type: PipelineTypeEnum
+    pipeline_route: Optional[str]
+    css_background: Optional[str]
     version: Optional[float]
     dropped_columns: Optional[List[str]]
+    prediction_input_fields: Optional[dict]
     registry_id: int
     inherited_from_id: Optional[int]
     user_id: int
@@ -47,6 +50,7 @@ class ModelsFlat(_ModelsBase):
     """Existed model representation."""
 
     id: int
+
 
 # class AutoMLDeps(InternalEntity):
 #     url: str

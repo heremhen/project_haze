@@ -15,7 +15,12 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=UserWarning)
 
-__all__ = ("save_model_pipeline", "auto_ml__", "predict_model_pipeline")
+__all__ = (
+    "save_model_pipeline",
+    "auto_ml__",
+    "predict_model_pipeline",
+    "calculate_prediction_input_fields",
+)
 
 
 async def save_model_pipeline(automl) -> Union[str, None]:

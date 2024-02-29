@@ -104,7 +104,7 @@ class ModelsTable(Base):
     css_background: str = Column(String, nullable=True)
     version: float = Column(Float, nullable=False, default=1.0)
     dropped_columns = Column(PickleType, nullable=True)
-    prediction_input_fields: dict = Column()
+    prediction_input_fields = Column(PickleType, nullable=True)
 
     registry_id: int = Column(ForeignKey(RegistryTable.id), nullable=False)
     inherited_from_id: int = Column(

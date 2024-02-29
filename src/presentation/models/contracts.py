@@ -14,7 +14,7 @@ class _ModelsBase(PublicEntity):
     time_budget: Optional[TimeBudgetEnum] = Field(
         default=TimeBudgetEnum.normal
     )
-    pipeline_type: Optional[PipelineTypeEnum] = Field(...)
+    pipeline_type: PipelineTypeEnum = Field(...)
     version: Optional[float] = Field(default=1.0)
     dropped_columns: Optional[List[str]] = Field(default=[])
     registry_id: int = Field(...)
@@ -31,3 +31,5 @@ class ModelsPublic(_ModelsBase):
     """The internal application representation."""
 
     id: int
+    prediction_input_fields: Optional[dict]
+    css_background: Optional[str]
