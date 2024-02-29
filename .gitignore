@@ -68,3 +68,8 @@ __pycache__/
 # revisions
 src/infrastructure/database/migrations/versions/*
 static/*
+
+# Filters
+!src/infrastructure/database/migrations/versions/.gitkeep
+!static/public/.gitkeep
+!static/pipelines/.gitkeep

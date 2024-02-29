@@ -17,8 +17,6 @@ from sqlalchemy.orm import Mapped, declarative_base, relationship
 __all__ = (
     "Base",
     "UsersTable",
-    "ProductsTable",
-    "OrdersTable",
     "RegistryTable",
     "ModelsTable",
 )
@@ -55,27 +53,6 @@ class UsersTable(Base):
     email: str = Column(String, nullable=True, default=None, unique=True)
     full_name: str = Column(String, nullable=True, default=None)
     disabled: bool = Column(Boolean, nullable=True, default=None)
-
-
-class ProductsTable(Base):
-    __tablename__ = "products"
-
-    name: str = Column(String, nullable=False)
-    price: int = Column(Integer, nullable=False)
-
-
-class OrdersTable(Base):
-    __tablename__ = "orders"
-
-    amount: int = Column(Integer, nullable=False, default=1)
-
-    product_id: int = Column(ForeignKey(ProductsTable.id), nullable=False)
-    user_id: int = Column(ForeignKey(UsersTable.id), nullable=False)
-
-    user: "Mapped[UsersTable]" = relationship("UsersTable", uselist=False)
-    product: "Mapped[ProductsTable]" = relationship(
-        "ProductsTable", uselist=False
-    )
 
 
 class RegistryTable(Base):  # FilesTable
