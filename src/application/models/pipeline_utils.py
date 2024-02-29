@@ -1,3 +1,4 @@
+import locale
 import os
 import pickle
 import uuid
@@ -69,6 +70,35 @@ async def auto_ml__(
     )
     path = await save_model_pipeline(automl)
     return path
+
+
+def calculate_prediction_input_fields(data, target) -> dict:
+    prediction_input_fields_info = {}
+    for column in data.columns:
+        if column == target:
+            continue
+        most_frequent_value = data[column].mode()[0]
+        data_type = str(data[column].dtype)
+
+        if data_type not in ["int64", "float64"]:
+            non_nan_values = data[column].dropna().astype(str).unique()
+            unique_values = sorted(non_nan_values.tolist(), key=locale.strxfrm)
+        else:
+            unique_values = None
+
+        prediction_input_fields_info[column] = {
+            "most_frequent_value": str(most_frequent_value),
+            "data_type": data_type,
+            "fields": unique_values,
+        }
+
+    sorted_fields = sorted(
+        prediction_input_fields_info.items(),
+        key=lambda item: locale.strxfrm(item[0]),
+    )
+    prediction_input_fields_info = {item[0]: item[1] for item in sorted_fields}
+
+    return prediction_input_fields_info
 
 
 async def predict_model_pipeline(new_data, path: str) -> list:

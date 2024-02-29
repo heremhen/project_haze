@@ -1,6 +1,6 @@
 from typing import Any, AsyncGenerator, Generic, Type
 
-from sqlalchemy import asc, delete, desc, func, select, update, or_
+from sqlalchemy import asc, delete, desc, func, or_, select, update
 from sqlalchemy.engine import Result
 
 from src.infrastructure.application import (

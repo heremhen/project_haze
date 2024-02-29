@@ -53,7 +53,7 @@ class PublicEntity(BaseModel):
         from_attributes=True,
         json_encoders=_json_encoders,
         loc_by_alias=True,
-        alias_generator=to_camelcase,
+        # alias_generator=to_camelcase,
     )
 
     def flat_dict(self, by_alias=True):

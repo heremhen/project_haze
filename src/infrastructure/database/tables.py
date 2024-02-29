@@ -20,7 +20,6 @@ __all__ = (
     "ProductsTable",
     "OrdersTable",
     "RegistryTable",
-    "PipelineTypesTable",
     "ModelsTable",
 )
 
@@ -92,12 +91,6 @@ class RegistryTable(Base):  # FilesTable
     user: "Mapped[UsersTable]" = relationship("UsersTable", uselist=False)
 
 
-class PipelineTypesTable(Base):
-    __tablename__ = "pipeline_types"
-
-    name: str = Column(String, nullable=False)
-
-
 class ModelsTable(Base):
     __tablename__ = "models"
 
@@ -105,16 +98,17 @@ class ModelsTable(Base):
     description: str = Column(String, nullable=True)
     target_attribute: str = Column(String, nullable=False)
     test_size_threshold: float = Column(Float, nullable=False)
-    dropped_columns = Column(PickleType, nullable=True)
     time_budget: int = Column(Integer, nullable=False)
+    pipeline_type: str = Column(String, nullable=False)
+    pipeline_route: str = Column(String, nullable=True)
+    css_background: str = Column(String, nullable=True)
     version: float = Column(Float, nullable=False, default=1.0)
+    dropped_columns = Column(PickleType, nullable=True)
+    prediction_input_fields: dict = Column()
 
     registry_id: int = Column(ForeignKey(RegistryTable.id), nullable=False)
     inherited_from_id: int = Column(
         ForeignKey(RegistryTable.id), nullable=True
-    )
-    pipeline_type_id: int = Column(
-        ForeignKey(PipelineTypesTable.id), nullable=False
     )
     user_id: int = Column(ForeignKey(UsersTable.id), nullable=False)
 
@@ -124,9 +118,6 @@ class ModelsTable(Base):
     inheritance: "Mapped[RegistryTable]" = relationship(
         "RegistryTable", foreign_keys=[inherited_from_id], uselist=False
     )
-    pipe_type: "Mapped[PipelineTypesTable]" = relationship(
-        "PipelineTypesTable", foreign_keys=[pipeline_type_id], uselist=False
-    )
-    pipe_type: "Mapped[UsersTable]" = relationship(
+    user: "Mapped[UsersTable]" = relationship(
         "UsersTable", foreign_keys=[user_id], uselist=False
     )

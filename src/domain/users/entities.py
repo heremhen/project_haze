@@ -1,4 +1,5 @@
 from typing import Optional
+
 from pydantic import Field
 
 from src.infrastructure.application import InternalEntity

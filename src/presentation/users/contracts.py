@@ -1,12 +1,12 @@
 from typing import Optional
 
-from pydantic.config import ConfigDict
 from pydantic import Field
+from pydantic.config import ConfigDict
 
-from src.infrastructure.application import PublicEntity
+from src.infrastructure.application import InternalEntity
 
 
-class _UserBase(PublicEntity):
+class _UserBase(InternalEntity):
     username: str
     email: Optional[str] = Field(default=None)
     full_name: Optional[str] = Field(default=None)

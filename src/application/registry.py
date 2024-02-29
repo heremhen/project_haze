@@ -7,6 +7,7 @@ from src.domain.registry import (
     RegistryRepository,
     RegistryUncommited,
 )
+from src.domain.registry.aggregates import Registry
 from src.infrastructure.database import transaction
 
 
@@ -24,7 +25,7 @@ async def get_all(user_id: int) -> list[RegistryFlat]:
 
 async def create(
     path: str, upload_files: list, user_id: int
-) -> list[RegistryFlat]:
+) -> list[Registry]:
     """Create a database record for the registry."""
 
     responses = []
@@ -48,7 +49,7 @@ async def create(
                 "url": f"{path}{new_file}",
                 "user_id": user_id,
             }
-            _registry: RegistryFlat = await RegistryRepository().create(
+            _registry: Registry = await RegistryRepository().create(
                 RegistryUncommited(**_registry_dict)
             )
             responses.append(_registry)

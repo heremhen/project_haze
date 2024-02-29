@@ -1,8 +1,7 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, Depends, status
 
 from src.application import authentication, models
-from src.application.models.pipeline import auto_ml__
-from src.domain.models import ModelsFlat, ModelsUncommited
+from src.domain.models import ModelsFlat
 from src.domain.users import UserFlat
 from src.infrastructure.application import Response
 
@@ -19,10 +18,10 @@ async def create_autoML_model(
     """Create a new model."""
 
     # TODO: Run pipeline
-    # _pipeline = auto_ml__()
+    # _pipeline = models.auto_ml__()
     _models: ModelsFlat = await models.create(
-        ModelsUncommited(user_id=user.id, **schema.model_dump())
+        user=user, payload=schema.model_dump()
     )
-
     _models_public = ModelsPublic.model_validate(_models)
+
     return Response[ModelsPublic](result=_models_public)

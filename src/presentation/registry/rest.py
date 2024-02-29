@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, File, UploadFile, status
 from fastapi.responses import FileResponse
 
 from src.application import authentication, registry
+from src.domain.registry.aggregates import Registry
 from src.domain.registry.entities import RegistryFlat
 from src.domain.users import UserFlat
 from src.infrastructure.application import ResponseMulti
@@ -56,10 +57,13 @@ async def store_uploadfiles(
 ) -> ResponseMulti[RegistryPublic]:
     """Store multiple files."""
 
-    _registry: list[RegistryFlat] = await registry.create(
+    _registry: list[Registry] = await registry.create(
         path=path,
         upload_files=upload_files,
         user_id=user.id,
     )
+
+    for item in _registry:
+        RegistryFlat.model_validate(item)
 
     return ResponseMulti[RegistryPublic](result=_registry)

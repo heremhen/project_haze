@@ -1,4 +1,5 @@
 from typing import AsyncGenerator
+
 from sqlalchemy import and_
 
 from src.infrastructure.database import BaseRepository, RegistryTable
