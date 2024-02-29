@@ -8,7 +8,7 @@
 
 ### Set up Python environment
 
-``bash
+```bash
 # Create and activate a virtual environment (optional but recommended)
 python -m venv venv
 venv\Scripts\activate  # For MacOS/Linux, use source venv/bin/activate
