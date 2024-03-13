@@ -21,3 +21,8 @@ numpy==1.25.2
 scikit-learn==1.4.1.post1
 catboost==1.2.3
 ydata-profiling[unicode]==4.6.5
+
+# Tab job
+flower==2.0.1
+celery==5.3.6
+redis==5.0.3

@@ -17,8 +17,6 @@ async def create_autoML_model(
 ) -> Response[ModelsPublic]:
     """Create a new model."""
 
-    # TODO: Run pipeline
-    # _pipeline = models.auto_ml__()
     _models: ModelsFlat = await models.create(
         user=user, payload=schema.model_dump()
     )

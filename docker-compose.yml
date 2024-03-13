@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  web:
+    container_name: hazel_haze
+    build: .
+    ports:
+      - 5000:8000
+      - 5556:5555
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - celerybackend
+
+  celerybackend:
+    image: redis:latest
+    container_name: cozy_haze
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    restart: always

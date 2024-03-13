@@ -10,7 +10,7 @@ class _ModelsBase(PublicEntity):
     name: Optional[str] = Field(default="CH4NGE ME")
     description: Optional[str] = Field(default=None)
     target_attribute: str = Field(...)
-    test_size_threshold: Optional[float] = Field(ge=0.1, le=0.9, default=0.3)
+    test_size_threshold: Optional[float] = Field(ge=0.1, le=0.9, default=0.2)
     time_budget: Optional[TimeBudgetEnum] = Field(
         default=TimeBudgetEnum.normal
     )

@@ -73,3 +73,6 @@ static/*
 !src/infrastructure/database/migrations/versions/.gitkeep
 !static/public/.gitkeep
 !static/pipelines/.gitkeep
+
+# Additional ignores
+celerybeat-schedule

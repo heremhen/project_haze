@@ -1,12 +1,14 @@
-import pandas as pd
+from pydantic import ValidationError
 
 from src.application.models.colorful_util import generate_css
 from src.application.models.pipeline_utils import (
     auto_ml__,
     calculate_prediction_input_fields,
+    generate_unique_path,
 )
 from src.domain.models import ModelsFlat, ModelsRepository, ModelsUncommited
 from src.domain.models.aggregates import Model_
+from src.domain.models.entities import AutoMLDeps
 from src.domain.registry import RegistryFlat, RegistryRepository
 from src.domain.users import UserFlat
 from src.infrastructure.application.errors.entities import UnprocessableError
@@ -27,34 +29,38 @@ async def create(
     """Create a database record for the model."""
 
     payload.update(user_id=user.id)
-
+    model_dir: str = generate_unique_path()
     async with transaction():
         data: RegistryFlat = await RegistryRepository().get(
             id_=payload["registry_id"],
         )
-        if data.extension == ".csv":
-            dataset = pd.read_csv(f"static/{data.url}")
-        else:
+        if data.extension != ".csv":
             raise UnprocessableError(
                 message="The process only supports `.csv` files."
             )
-        pipeline_route = await auto_ml__(
-            train_data=dataset,
-            target=payload["target_attribute"],
-            threshold=payload["test_size_threshold"],
-            time_budget=payload["time_budget"],
-            pipeline_type=payload["pipeline_type"],
-        )
+        try:
+            automl_deps = AutoMLDeps(
+                dataset_url=data.url,
+                target=payload["target_attribute"],
+                threshold=payload["test_size_threshold"],
+                time_budget=payload["time_budget"],
+                pipeline_type=payload["pipeline_type"],
+                pipeline_route=model_dir,
+            )
+        except ValidationError as e:
+            raise UnprocessableError(
+                message=f"Invalid payload for AutoML: {e}"
+            )
+        auto_ml_task = auto_ml__.delay(deps_dict=automl_deps.model_dump())
         prediction_inputs = calculate_prediction_input_fields(
-            dataset, payload["target_attribute"]
+            data.url, payload["target_attribute"]
         )
-
         repository = ModelsRepository()
         model_flat: ModelsFlat = await repository.create(
             ModelsUncommited(
                 **payload,
                 prediction_input_fields=prediction_inputs,
-                pipeline_route=pipeline_route,
+                pipeline_route=model_dir,
                 css_background=generate_css(),
             ),
         )

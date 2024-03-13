@@ -1,7 +1,1 @@
-from . import (  # noqa: F401
-    authentication,
-    health,
-    models,
-    registry,
-    users,
-)
+from . import authentication, health, models, registry, users  # noqa: F401

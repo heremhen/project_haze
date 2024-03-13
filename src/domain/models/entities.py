@@ -1,8 +1,6 @@
 from enum import Enum, IntEnum
 from typing import List, Optional
 
-from pandas import DataFrame
-
 from src.infrastructure.application import InternalEntity
 
 __all__ = ("TimeBudgetEnum", "ModelsFlat", "ModelsUncommited")
@@ -30,7 +28,7 @@ class _ModelsBase(InternalEntity):
     test_size_threshold: Optional[float]
     time_budget: Optional[TimeBudgetEnum]
     pipeline_type: PipelineTypeEnum
-    pipeline_route: Optional[str]
+    pipeline_route: Optional[str] = None
     css_background: Optional[str]
     version: Optional[float]
     dropped_columns: Optional[List[str]]
@@ -52,9 +50,10 @@ class ModelsFlat(_ModelsBase):
     id: int
 
 
-# class AutoMLDeps(InternalEntity):
-#     url: str
-#     target_attribute: str
-#     pipeline_type: str
-#     test_size_threshold: float
-#     time_budget: Optional[TimeBudgetEnum] = TimeBudgetEnum.normal
+class AutoMLDeps(InternalEntity):
+    dataset_url: str
+    target: str
+    pipeline_type: str
+    threshold: float
+    time_budget: Optional[TimeBudgetEnum] = TimeBudgetEnum.normal
+    pipeline_route: str

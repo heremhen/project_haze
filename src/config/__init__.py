@@ -61,13 +61,26 @@ class AuthenticationSettings(BaseModel):
     scheme: str = "Bearer"
 
 
+class CelerySettings(BaseModel):
+    """Configure celery redis settings."""
+
+    broker_url: str = ""
+    result_backend: str = ""
+
+
+# Define the root path
+# --------------------------------------
+ROOT_PATH = Path(__file__).parent.parent.parent
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_nested_delimiter="__", env_file=".env", extra="ignore"
+        env_nested_delimiter="__", env_file=ROOT_PATH / ".env", extra="ignore"
     )
 
     # Infrastructure settings
     database: DatabaseSettings = DatabaseSettings()
+    celery: CelerySettings = CelerySettings()
 
     # Application configuration
     root_dir: Path
@@ -77,10 +90,6 @@ class Settings(BaseSettings):
     logging: LoggingSettings = LoggingSettings()
     authentication: AuthenticationSettings = AuthenticationSettings()
 
-
-# Define the root path
-# --------------------------------------
-ROOT_PATH = Path(__file__).parent.parent.parent
 
 # ======================================
 # Load settings

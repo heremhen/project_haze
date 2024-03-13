@@ -5,79 +5,112 @@ import uuid
 import warnings
 from typing import Optional, Union
 
+import numpy as np
+import pandas as pd
 from flaml import AutoML
 from sklearn.model_selection import train_test_split
 
-from src.domain.models.entities import TimeBudgetEnum
-from src.infrastructure.application.errors.entities import NotFoundError
+from src.celery.app import celery_app
+from src.domain.models.entities import AutoMLDeps
+from src.infrastructure.application import (
+    BadRequestError,
+    NotFoundError,
+    UnprocessableError,
+)
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=UserWarning)
 
 __all__ = (
-    "save_model_pipeline",
     "auto_ml__",
     "predict_model_pipeline",
     "calculate_prediction_input_fields",
+    "load_dataset",
+    "generate_unique_path",
+    "save_model_to_path",
 )
 
 
-async def save_model_pipeline(automl) -> Union[str, None]:
-    """Saves the dataset trained file in the storage."""
-    # TODO: It's not recommended to save files locally like this
+def load_dataset(data_url) -> pd.DataFrame:
+    for encoding in ["utf-8", "latin1", "iso-8859-1"]:
+        try:
+            dataset = pd.read_csv(f"static/{data_url}", encoding=encoding)
+            return dataset
+        except UnicodeDecodeError:
+            continue
+    raise UnprocessableError(
+        message="Unable to decode the CSV file using supported encodings."
+    )
+
+
+def generate_unique_path() -> str:
+    """Generates a unique path for saving the model."""
 
     directory = "static/pipelines"
-    path = f"{directory}/{str(uuid.uuid4())}.pkl"
-
     if not os.path.exists(directory):
         os.makedirs(directory)
+    path = f"{directory}/{str(uuid.uuid4())}.pkl"
+    return path
+
+
+def save_model_to_path(automl, path: str):
+    """Saves the dataset trained file in the storage."""
 
     with open(path, "wb") as f:
         pickle.dump(automl, f, pickle.HIGHEST_PROTOCOL)
 
-    return path[len("static/") :]
 
-
-async def auto_ml__(
-    train_data,
-    target: str,
-    pipeline_type: str,
-    threshold: float,
-    time_budget: Optional[TimeBudgetEnum] = TimeBudgetEnum.normal,
-) -> str:
+@celery_app.task(name="auto_ml__")
+def auto_ml__(deps_dict: dict):
     """Trains model based on the dataset."""
 
-    X = train_data.drop([target], axis=1)
-    y = train_data[target]
+    deps = AutoMLDeps(**deps_dict)
+    train_data = load_dataset(deps.dataset_url)
+    try:
+        X = train_data.drop([deps.target], axis=1)
+    except KeyError:
+        raise NotFoundError(message=f"{deps.target} not found in axis")
+    y = train_data[deps.target]
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=threshold, random_state=42
+        X, y, test_size=deps.threshold, random_state=42
     )
+    # X_train, X_validation, y_train, y_validation = train_test_split(
+    #     X_train, y_train, test_size=threshold, random_state=42
+    # )
     automl = AutoML()
-    if pipeline_type == "regression":
-        automl_settings = {
-            "time_budget": time_budget,
-            "metric": "r2",
-            "task": "regression",
-        }
-    else:
-        automl_settings = {
-            "time_budget": time_budget,
-            "metric": "accuracy",
-            "task": "classification",
-            "estimator_list": ["xgboost", "catboost", "lgbm", "rf"],
-        }
+    match deps.pipeline_type:
+        case "regression":
+            automl_settings = {
+                "time_budget": deps.time_budget,
+                "metric": "r2",
+                "task": "regression",
+            }
+        case "classification":
+            automl_settings = {
+                "time_budget": deps.time_budget,
+                "metric": "accuracy",
+                "task": "classification",
+                "estimator_list": ["xgboost", "catboost", "lgbm", "rf"],
+            }
+        case _:
+            raise BadRequestError(
+                message="Pipeline type is under construction..."
+            )
     automl.fit(
         X_train=X_train,
         y_train=y_train,
-        mlflow_logging=False,
+        # X_val=X_validation,
+        # y_val=y_validation,
         **automl_settings,
     )
-    path = await save_model_pipeline(automl)
-    return path
+    save_model_to_path(automl, deps.pipeline_route)
 
 
-def calculate_prediction_input_fields(data, target) -> dict:
+def calculate_prediction_input_fields(dataset_url, target) -> dict:
+    """Generate prediction inputs from a dataset for web."""
+
+    data = load_dataset(dataset_url)
     prediction_input_fields_info = {}
     for column in data.columns:
         if column == target:
