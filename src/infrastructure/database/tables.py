@@ -38,6 +38,7 @@ class _Base:
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    disabled: bool = Column(Boolean, nullable=True, default=None)
 
 
 Base = declarative_base(cls=_Base, metadata=meta)
@@ -52,7 +53,6 @@ class UsersTable(Base):
     password: str = Column(String, nullable=False)
     email: str = Column(String, nullable=True, default=None, unique=True)
     full_name: str = Column(String, nullable=True, default=None)
-    disabled: bool = Column(Boolean, nullable=True, default=None)
 
 
 class RegistryTable(Base):  # FilesTable
@@ -94,6 +94,35 @@ class ModelsTable(Base):
     )
     inheritance: "Mapped[RegistryTable]" = relationship(
         "RegistryTable", foreign_keys=[inherited_from_id], uselist=False
+    )
+    user: "Mapped[UsersTable]" = relationship(
+        "UsersTable", foreign_keys=[user_id], uselist=False
+    )
+
+
+class ModelsReportTable(Base):
+    __tablename__ = "models_report"
+
+    analysis = Column(PickleType, nullable=True)
+    time_index_analysis = Column(PickleType, nullable=True)
+    table = Column(PickleType, nullable=True)
+    variables = Column(PickleType, nullable=True)
+    scatter = Column(PickleType, nullable=True)
+    correlations = Column(PickleType, nullable=True)
+    missing = Column(PickleType, nullable=True)
+    alerts = Column(PickleType, nullable=True)
+    sample = Column(PickleType, nullable=True)
+    duplicates = Column(PickleType, nullable=True)
+
+    registry_id: int = Column(ForeignKey(RegistryTable.id), nullable=False)
+    models_id: int = Column(ForeignKey(ModelsTable.id), nullable=True)
+    user_id: int = Column(ForeignKey(UsersTable.id), nullable=False)
+
+    registry: "Mapped[RegistryTable]" = relationship(
+        "RegistryTable", foreign_keys=[registry_id], uselist=False
+    )
+    pipeline: "Mapped[ModelsTable]" = relationship(
+        "ModelsTable", foreign_keys=[models_id], uselist=False
     )
     user: "Mapped[UsersTable]" = relationship(
         "UsersTable", foreign_keys=[user_id], uselist=False
