@@ -1,9 +1,0 @@
-### Create a new product
-POST {{HTTP__BASE_URL}}/products
-Content-Type: application/json
-
-{
-    "name": "laptop",
-    "price": 3900000
-}
-

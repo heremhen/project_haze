@@ -12,9 +12,9 @@ class UserUncommited(InternalEntity):
 
     username: str
     password: str
-    email: Optional[str] = Field(default=None)
-    full_name: Optional[str] = Field(default=None)
-    disabled: Optional[bool] = Field(default=None)
+    email: Optional[str]
+    full_name: Optional[str]
+    disabled: Optional[bool]
 
 
 class UserFlat(UserUncommited):

@@ -1,3 +1,7 @@
+from typing import Optional
+
+from pydantic import Field
+
 from src.infrastructure.application import InternalEntity
 
 __all__ = ("RegistryUncommited", "RegistryFlat")
@@ -12,6 +16,7 @@ class _RegistryBase(InternalEntity):
     type: str
     url: str
     user_id: int
+    disabled: Optional[bool]
 
 
 class RegistryUncommited(_RegistryBase):

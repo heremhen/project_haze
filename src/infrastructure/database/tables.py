@@ -38,7 +38,7 @@ class _Base:
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    disabled: bool = Column(Boolean, nullable=True, default=None)
+    disabled = Column(Boolean, nullable=True, default=None)
 
 
 Base = declarative_base(cls=_Base, metadata=meta)

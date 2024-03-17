@@ -24,3 +24,4 @@ scripts:
   docker.build: docker-compose up --build
   docker.up: docker-compose up -d
   docker.down: docker-compose down
+  docker.mistral: docker exec -it hazy_ollama ollama run mistral:latest

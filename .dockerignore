@@ -86,7 +86,20 @@ venv/
 **/*.swp
 
 # VS Code
+**\.vscode
 .vscode/
+**\.dist
 
 # sqlite
 *.sqlite3
+
+### Others
+README.md
+# rav.yaml
+celerybeat-schedule
+.env.default
+# logs/
+# static/pipelines/*.pkl
+# static/*.csv
+# static/*.html
+# static/*.json

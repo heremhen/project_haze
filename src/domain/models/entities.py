@@ -36,6 +36,7 @@ class _ModelsBase(InternalEntity):
     registry_id: int
     inherited_from_id: Optional[int]
     user_id: int
+    disabled: Optional[bool]
 
 
 class ModelsUncommited(_ModelsBase):

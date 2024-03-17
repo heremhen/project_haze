@@ -73,6 +73,10 @@ static/*
 !src/infrastructure/database/migrations/versions/.gitkeep
 !static/public/.gitkeep
 !static/pipelines/.gitkeep
+!data/ollama/.gitkeep
 
 # Additional ignores
 celerybeat-schedule
+ollama/
+*.gguf
+*.ggml

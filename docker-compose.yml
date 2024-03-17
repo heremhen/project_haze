@@ -1,8 +1,8 @@
 version: "3.8"
 
 services:
-  web:
-    container_name: hazel_haze
+  backend:
+    container_name: hazy_backend
     build: .
     ports:
       - 5000:8000
@@ -11,17 +11,66 @@ services:
       - .env
     volumes:
       - .:/app
+    environment:
+      - "ollama/api=http://ollama:11434/api"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: always
     depends_on:
       - celerybackend
+      - ollamabackend
+    networks:
+      - hazel-haze-docker
 
   celerybackend:
     image: redis:latest
-    container_name: cozy_haze
+    container_name: hazy_redis
     ports:
       - 6379:6379
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 30s
       retries: 50
+    restart: unless-stopped
+    depends_on:
+      - ollamabackend
+    networks:
+      - hazel-haze-docker
+
+  ollamabackend:
+    image: ollama/ollama:latest
+    container_name: hazy_ollama
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - 11434:11434
+    pull_policy: always
+    tty: true
     restart: always
+    networks:
+      - hazel-haze-docker
+
+  # ollamabackend:
+  #   volumes:
+  #     - ollama:/root/.ollama
+  #   container_name: hazy_ollama
+  #   pull_policy: always
+  #   tty: true
+  #   restart: unless-stopped
+  #   image: ollama/ollama:latest
+  #   ports:
+  #     - 11434:11434
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+
+networks:
+  hazel-haze-docker:
+    external: false
+volumes:
+  ollama: {}
