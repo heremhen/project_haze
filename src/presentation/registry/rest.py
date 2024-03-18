@@ -67,3 +67,17 @@ async def store_uploadfiles(
         RegistryFlat.model_validate(item)
 
     return ResponseMulti[RegistryPublic](result=_registry)
+
+
+@router.put("", status_code=status.HTTP_200_OK)
+async def update_stored_files(
+    user: UserFlat = Depends(authentication.get_current_user),
+):
+    raise NotImplementedError()
+
+
+@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_files(
+    user: UserFlat = Depends(authentication.get_current_user),
+):
+    raise NotImplementedError()
