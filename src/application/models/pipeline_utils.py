@@ -3,7 +3,6 @@ import os
 import pickle
 import uuid
 import warnings
-from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -35,7 +34,9 @@ __all__ = (
 def load_dataset(data_url) -> pd.DataFrame:
     for encoding in ["utf-8", "latin1", "iso-8859-1"]:
         try:
-            dataset = pd.read_csv(f"static/{data_url}", encoding=encoding)
+            dataset = pd.read_csv(
+                f"static/datasets/{data_url}", encoding=encoding
+            )
             return dataset
         except UnicodeDecodeError:
             continue

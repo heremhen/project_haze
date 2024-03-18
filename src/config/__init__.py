@@ -73,6 +73,18 @@ class CelerySettings(BaseModel):
 ROOT_PATH = Path(__file__).parent.parent.parent
 
 
+class ChromaSettings(BaseModel):
+    """Configure chroma base settings."""
+
+    persist_directory: str = f"{ROOT_PATH}/static/chroma"
+    anonymized_telemetry: bool = False
+    source_directory: str = f"{ROOT_PATH}/static/source_documents"
+    chunk_size: int = 500
+    chunk_overlap: int = 50
+    target_source_chunks: int = 4
+    model: str = "mistral"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_nested_delimiter="__", env_file=ROOT_PATH / ".env", extra="ignore"
@@ -81,6 +93,7 @@ class Settings(BaseSettings):
     # Infrastructure settings
     database: DatabaseSettings = DatabaseSettings()
     celery: CelerySettings = CelerySettings()
+    chroma: ChromaSettings = ChromaSettings()
 
     # Application configuration
     root_dir: Path

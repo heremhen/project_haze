@@ -8,7 +8,12 @@ celery_app = Celery(
     task_serializer="json",
     result_serializer="json",
     accept_content=["json"],
-    include=["src.celery.worker", "src.application.models.pipeline_utils"],
+    include=[
+        "src.celery.worker",
+        "src.application.models.pipeline_utils",
+        "src.application.foxtail.ingest",
+        "src.application.foxtail.privateGPT",
+    ],
     broker_transport_options={
         "max_retries": 1,
         "visibility_timeout": 365 * 24 * 60 * 60,

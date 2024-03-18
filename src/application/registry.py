@@ -36,7 +36,7 @@ async def create(
             )
             uid = str(uuid.uuid4())
             new_file = f"{uid}{original_extension}"
-            save_path = f"static/{path}"
+            save_path = f"static/datasets/{path}"
             os.makedirs(save_path, exist_ok=True)
             save_path = os.path.join(save_path, new_file)
             with open(save_path, "w+b") as buffer:
