@@ -44,3 +44,7 @@ def generate_css() -> str:
     css_background = css_background[:-1]
 
     return css_background
+
+
+if __name__ == "__main__":
+    print(generate_css())

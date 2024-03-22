@@ -1,9 +1,18 @@
 from enum import Enum, IntEnum
 from typing import List, Optional
 
+from pydantic import Field
+
 from src.infrastructure.application import InternalEntity
 
-__all__ = ("TimeBudgetEnum", "ModelsFlat", "ModelsUncommited")
+__all__ = (
+    "TimeBudgetEnum",
+    "ModelsFlat",
+    "ModelsUncommited",
+    "StatusType",
+    "PipelineTypeEnum",
+    "AutoMLDeps",
+)
 
 
 class TimeBudgetEnum(IntEnum):
@@ -21,6 +30,14 @@ class PipelineTypeEnum(str, Enum):
     regression = "regression"
 
 
+class StatusType(str, Enum):
+    """Status types."""
+
+    pending = "PENDING"
+    failed = "FAILED"
+    success = "SUCCESS"
+
+
 class _ModelsBase(InternalEntity):
     name: Optional[str]
     description: Optional[str]
@@ -32,17 +49,26 @@ class _ModelsBase(InternalEntity):
     css_background: Optional[str]
     version: Optional[float]
     dropped_columns: Optional[List[str]]
+    status: Optional[StatusType] = None
     prediction_input_fields: Optional[dict]
     registry_id: int
     inherited_from_id: Optional[int]
     user_id: int
-    disabled: Optional[bool]
+    horizon_id: int
+    disabled: Optional[bool] = False
 
 
 class ModelsUncommited(_ModelsBase):
     """This schema is used for creating instance in the database."""
 
-    pass
+    target_attribute: Optional[str]
+    pipeline_type: Optional[PipelineTypeEnum]
+    pipeline_route: Optional[str]
+    status: Optional[StatusType]
+    registry_id: Optional[int]
+    user_id: Optional[int]
+    horizon_id: Optional[int]
+    disabled: Optional[bool]
 
 
 class ModelsFlat(_ModelsBase):

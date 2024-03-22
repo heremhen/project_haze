@@ -9,9 +9,9 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install dependencies
+COPY requirements/main.txt requirements/main.txt
+COPY requirements/dev.txt requirements/dev.txt
 COPY [  \
-    "requirements/main.txt", \
-    "requirements/dev.txt", \
     "./alembic.ini", \
     "./static", \
     "./pyproject.toml", \
@@ -19,10 +19,13 @@ COPY [  \
     "./" \
     ]
 RUN apt-get update && \
-    apt-get install -y libgomp1 curl gnupg && \
-    curl -fsSL https://ollama.com/install.sh | sh && \
+    apt-get install -y libgomp1 && \
+    # curl gnupg g++ gdb make ninja-build rsync zip && \
+    # curl -fsSL https://ollama.com/install.sh | sh && \
     pip install --upgrade pip && \
-    pip install --no-cache-dir -r main.txt -r dev.txt
+    pip install \
+    # --no-cache-dir \
+    -r requirements/main.txt -r requirements/dev.txt
 
 # # Configure NVIDIA Container Toolkit (if GPU ver.)
 # RUN curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \

@@ -18,25 +18,25 @@ python-multipart==0.0.9
 flaml[automl]==2.1.2
 # flaml[automl,hf]==2.1.2
 pandas==2.2.1
-numpy==1.25.2
+numpy>=1.23.2,<2.0
 scikit-learn==1.4.1.post1
 catboost==1.2.3
 ydata-profiling[unicode]==4.6.5
 langchain==0.1.12
 langchain-community==0.0.28
 #~~~ gpt chat with docs ~~~# 
-gpt4all==2.2.1.post1
-chromadb==0.4.24
-llama-cpp-python==0.2.56
-urllib3==1.26.18
-PyMuPDF==1.23.26
-unstructured==0.12.6
-extract-msg==0.48.2
-tabulate==0.9.0
-pandoc==2.3
-pypandoc==1.13
-tqdm==4.66.2
-sentence_transformers==2.5.1
+# gpt4all==2.2.1.post1
+# chromadb==0.4.24
+# llama-cpp-python==0.2.56
+# urllib3==1.26.18
+# PyMuPDF==1.23.26
+# unstructured==0.12.6
+# extract-msg==0.48.2
+# tabulate==0.9.0
+# pandoc==2.3
+# pypandoc==1.13
+# tqdm==4.66.2
+# sentence_transformers==2.5.1
 
 ### Tabular joblings ###
 flower==2.0.1

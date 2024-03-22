@@ -11,8 +11,8 @@ celery_app = Celery(
     include=[
         "src.celery.worker",
         "src.application.models.pipeline_utils",
-        "src.application.foxtail.ingest",
-        "src.application.foxtail.privateGPT",
+        # "src.application.foxtail.ingest",
+        # "src.application.foxtail.privateGPT",
     ],
     broker_transport_options={
         "max_retries": 1,

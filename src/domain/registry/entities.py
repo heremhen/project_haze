@@ -16,7 +16,7 @@ class _RegistryBase(InternalEntity):
     type: str
     url: str
     user_id: int
-    disabled: Optional[bool]
+    disabled: Optional[bool] = False
 
 
 class RegistryUncommited(_RegistryBase):

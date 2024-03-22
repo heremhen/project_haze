@@ -20,11 +20,11 @@ check_status "Starting Celery Flower"
 celery -A src.celery.app beat -l INFO &
 check_status "Starting Celery Beat"
 
-# Run Alembic migrations
-alembic revision --autogenerate &
-check_status "Running Alembic revision"
-alembic upgrade head &
-check_status "Running Alembic upgrade"
+# # Run Alembic migrations
+# alembic revision --autogenerate &
+# check_status "Running Alembic revision"
+# alembic upgrade head &
+# check_status "Running Alembic upgrade"
 
 # Start the FastAPI server with Uvicorn
 uvicorn src.main:app --host 0.0.0.0 --workers 2

@@ -3,9 +3,17 @@ from fastapi import APIRouter, Depends, status
 from src.application import authentication, models
 from src.domain.models import ModelsFlat
 from src.domain.users import UserFlat
-from src.infrastructure.application import Response
+from src.infrastructure.application import (
+    NotFoundError,
+    Response,
+    ResponseMulti,
+)
 
-from .contracts import ModelsCreateRequestBody, ModelsPublic
+from .contracts import (
+    ModelsCreateRequestBody,
+    ModelsPublic,
+    ModelsPublicEssentials,
+)
 
 router = APIRouter(prefix="/models", tags=["Models"])
 
@@ -34,17 +42,28 @@ async def randomize_model_background(
 
 @router.get("/{model_id}", status_code=status.HTTP_200_OK)
 async def read_model(
-    model_id,
+    model_id: int,
     user: UserFlat = Depends(authentication.get_current_user),
-):
-    raise NotImplementedError()
+) -> Response[ModelsFlat]:
+
+    _model: ModelsFlat = await models.get(
+        model_id=model_id,
+        user_id=user.id,
+    )
+
+    return Response[ModelsFlat](result=_model)
 
 
 @router.get("", status_code=status.HTTP_200_OK)
 async def read_all_model(
     user: UserFlat = Depends(authentication.get_current_user),
-):
-    raise NotImplementedError()
+) -> ResponseMulti[ModelsPublicEssentials]:
+
+    _models: list[ModelsFlat] = await models.get_all(
+        user_id=user.id,
+    )
+
+    return ResponseMulti[ModelsPublicEssentials](result=_models)
 
 
 @router.put("/{model_id}", status_code=status.HTTP_200_OK)

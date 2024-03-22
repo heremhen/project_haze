@@ -8,18 +8,40 @@ from src.application.models.pipeline_utils import (
 )
 from src.domain.models import ModelsFlat, ModelsRepository, ModelsUncommited
 from src.domain.models.aggregates import Model_
-from src.domain.models.entities import AutoMLDeps
+from src.domain.models.entities import AutoMLDeps, StatusType
 from src.domain.registry import RegistryFlat, RegistryRepository
 from src.domain.users import UserFlat
-from src.infrastructure.application.errors.entities import UnprocessableError
+from src.infrastructure.application import (
+    AuthorizationError,
+    BadRequestError,
+    DatabaseError,
+    NotFoundError,
+    UnprocessableError,
+)
 from src.infrastructure.database import transaction
 
 
-async def get_all() -> list[ModelsFlat]:
+async def get(model_id: int, user_id: int) -> ModelsFlat:
+    """Get a model from the database."""
+
+    try:
+        async with transaction():
+            _model = await ModelsRepository().get(id_=model_id)
+            if _model.user_id != user_id:
+                raise AuthorizationError(message="Access denied.")
+            return _model
+    except (DatabaseError, NotFoundError):
+        raise NotFoundError(message="Model not found.")
+
+
+async def get_all(user_id: int) -> list[ModelsFlat]:
     """Get all models from the database."""
 
     async with transaction():
-        return [model async for model in ModelsRepository().all()]
+        return [
+            model
+            async for model in ModelsRepository().all_by_user(user_id=user_id)
+        ]
 
 
 async def create(
@@ -55,15 +77,54 @@ async def create(
         prediction_inputs = calculate_prediction_input_fields(
             data.url, payload["target_attribute"]
         )
-        repository = ModelsRepository()
-        model_flat: ModelsFlat = await repository.create(
-            ModelsUncommited(
-                **payload,
-                prediction_input_fields=prediction_inputs,
-                pipeline_route=model_dir,
-                css_background=generate_css(),
-            ),
-        )
-        rich_model: Model_ = await repository.get(model_flat.id)
+        try:
+            repository = ModelsRepository()
+            model_flat: ModelsFlat = await repository.create(
+                ModelsUncommited(
+                    **payload,
+                    prediction_input_fields=prediction_inputs,
+                    pipeline_route=model_dir,
+                    css_background=generate_css(),
+                    status=StatusType.pending,
+                ),
+            )
+            rich_model: Model_ = await repository.get(model_flat.id)
+        except DatabaseError as e:
+            raise UnprocessableError(message=f"Could not create model: {e}")
 
     return rich_model
+
+
+async def update(
+    model_id: int,
+    user: UserFlat,
+    payload: dict,
+) -> Model_:
+    """Update a database record for the model."""
+
+    async with transaction():
+        try:
+            # Fetch the model to be updated
+            _model = await ModelsRepository().get(id_=model_id)
+            if _model.user_id != user.id:
+                raise AuthorizationError(message="Access denied.")
+
+            # Validate payload
+            try:
+                validated_payload = ModelsUncommited(**payload)
+            except ValidationError as e:
+                raise UnprocessableError(
+                    message=f"Invalid payload for AutoML: {e}"
+                )
+
+            # Update the model
+            model_flat: ModelsFlat = await ModelsRepository().update(
+                key="id", value=model_id, payload=validated_payload
+            )
+
+            # Fetch the updated model
+            rich_model: Model_ = await ModelsRepository().get(model_flat.id)
+
+            return rich_model
+        except DatabaseError as e:
+            raise UnprocessableError(message=f"Could not update model: {e}")

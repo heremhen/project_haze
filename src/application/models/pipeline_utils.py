@@ -10,7 +10,7 @@ from flaml import AutoML
 from sklearn.model_selection import train_test_split
 
 from src.celery.app import celery_app
-from src.domain.models.entities import AutoMLDeps
+from src.domain.models import AutoMLDeps, StatusType
 from src.infrastructure.application import (
     BadRequestError,
     NotFoundError,
@@ -66,67 +66,72 @@ def save_model_to_path(automl, path: str):
 def auto_ml__(deps_dict: dict):
     """Trains model based on the dataset."""
 
-    deps = AutoMLDeps(**deps_dict)
-    train_data = load_dataset(deps.dataset_url)
     try:
-        X = train_data.drop([deps.target], axis=1)
-    except KeyError:
-        raise NotFoundError(message=f"{deps.target} not found in axis")
-    y = train_data[deps.target]
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=deps.threshold, random_state=42
-    )
-    automl = AutoML()
-    match deps.pipeline_type:
-        case "regression":
-            automl_settings = {
-                "time_budget": deps.time_budget,
-                "metric": "r2",
-                "task": "regression",
-            }
-        case "classification":
-            automl_settings = {
-                "time_budget": deps.time_budget,
-                "metric": "accuracy",
-                "task": "classification",
-                "estimator_list": ["xgboost", "catboost", "lgbm", "rf"],
-            }
-        # case "nlp":
-        #     MAX_ITER = 20
-        #     automl_settings = {
-        #         "max_iter": MAX_ITER,
-        #         "task": "seq-classification",
-        #         "fit_kwargs_by_estimator": {
-        #             "transformer": {
-        #                 "output_dir": "static/pipelines/data/output/",
-        #                 "model_path": "google/electra-small-discriminator",
-        #             }
-        #         },
-        #         "gpu_per_trial": 1,
-        #         "log_file_name": "seqclass.log",
-        #         "log_type": "all",
-        #         "use_ray": False,  # If parallel tuning, set "use_ray" to {"local_dir": "data/output/"}
-        #         "n_concurrent_trials": 1,
-        #         "keep_search_state": True,
-        #         #  "fp16": False
-        #     }
-        #     X_train, X_validation, y_train, y_validation = train_test_split(
-        #         X_train, y_train, test_size=deps.threshold, random_state=42
-        #     )
-        #     automl.fit(
-        #         X_val=X_validation,
-        #         y_val=y_validation,
-        #     )
-        case _:
-            raise BadRequestError(
-                message="Pipeline type is under construction..."
-            )
-    automl.fit(
-        X_train=X_train,
-        y_train=y_train,
-        **automl_settings,
-    )
-    save_model_to_path(automl, deps.pipeline_route)
+        deps = AutoMLDeps(**deps_dict)
+        train_data = load_dataset(deps.dataset_url)
+        try:
+            X = train_data.drop([deps.target], axis=1)
+        except KeyError:
+            raise NotFoundError(message=f"{deps.target} not found in axis")
+        y = train_data[deps.target]
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=deps.threshold, random_state=42
+        )
+        automl = AutoML()
+        match deps.pipeline_type:
+            case "regression":
+                automl_settings = {
+                    "time_budget": deps.time_budget,
+                    "metric": "r2",
+                    "task": "regression",
+                }
+            case "classification":
+                automl_settings = {
+                    "time_budget": deps.time_budget,
+                    "metric": "accuracy",
+                    "task": "classification",
+                    "estimator_list": ["xgboost", "catboost", "lgbm", "rf"],
+                }
+            # case "nlp":
+            #     MAX_ITER = 20
+            #     automl_settings = {
+            #         "max_iter": MAX_ITER,
+            #         "task": "seq-classification",
+            #         "fit_kwargs_by_estimator": {
+            #             "transformer": {
+            #                 "output_dir": "static/pipelines/data/output/",
+            #                 "model_path": "google/electra-small-discriminator",
+            #             }
+            #         },
+            #         "gpu_per_trial": 1,
+            #         "log_file_name": "seqclass.log",
+            #         "log_type": "all",
+            #         "use_ray": False,  # If parallel tuning, set "use_ray" to {"local_dir": "data/output/"}
+            #         "n_concurrent_trials": 1,
+            #         "keep_search_state": True,
+            #         #  "fp16": False
+            #     }
+            #     X_train, X_validation, y_train, y_validation = train_test_split(
+            #         X_train, y_train, test_size=deps.threshold, random_state=42
+            #     )
+            #     automl.fit(
+            #         X_val=X_validation,
+            #         y_val=y_validation,
+            #     )
+            case _:
+                raise BadRequestError(
+                    message="Pipeline type is under construction..."
+                )
+        automl.fit(
+            X_train=X_train,
+            y_train=y_train,
+            **automl_settings,
+        )
+        save_model_to_path(automl, deps.pipeline_route)
+        # Change ModelsTable's status to StatusType.success
+    except Exception as e:
+        # Change ModelsTable's status to StatusType.failed
+        raise UnprocessableError(message=str(e))
 
 
 def calculate_prediction_input_fields(dataset_url, target) -> dict:

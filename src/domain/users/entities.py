@@ -14,7 +14,7 @@ class UserUncommited(InternalEntity):
     password: str
     email: Optional[str]
     full_name: Optional[str]
-    disabled: Optional[bool]
+    disabled: Optional[bool] = False
 
 
 class UserFlat(UserUncommited):

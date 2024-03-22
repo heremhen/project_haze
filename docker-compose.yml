@@ -72,5 +72,6 @@ services:
 networks:
   hazel-haze-docker:
     external: false
+
 volumes:
   ollama: {}

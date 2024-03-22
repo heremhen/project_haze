@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 
-from src.application import users, authentication
+from src.application import authentication, users
 from src.application.authentication.dependency_injection import (
     get_password_hash,
 )

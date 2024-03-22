@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import Field
 
-from src.domain.models.entities import PipelineTypeEnum, TimeBudgetEnum
+from src.domain.models import PipelineTypeEnum, TimeBudgetEnum, StatusType
 from src.infrastructure.application import PublicEntity
 
 
@@ -19,6 +19,7 @@ class _ModelsBase(PublicEntity):
     dropped_columns: Optional[List[str]] = Field(default=[])
     registry_id: int = Field(...)
     inherited_from_id: Optional[int] = Field(default=None)
+    horizon_id: int = Field(...)
 
 
 class ModelsCreateRequestBody(_ModelsBase):
@@ -33,3 +34,17 @@ class ModelsPublic(_ModelsBase):
     id: int
     prediction_input_fields: Optional[dict]
     css_background: Optional[str]
+    status: Optional[str]
+
+
+class ModelsPublicEssentials(PublicEntity):
+    """The internal application representation only essentials."""
+
+    id: int
+    name: str
+    description: Optional[str]
+    pipeline_type: PipelineTypeEnum
+    status: Optional[StatusType]
+    version: Optional[float]
+    css_background: Optional[str]
+    horizon_id: int

@@ -19,6 +19,8 @@ __all__ = (
     "UsersTable",
     "RegistryTable",
     "ModelsTable",
+    "HorizonTable",
+    "ModelsReportTable",
 )
 
 meta = MetaData(
@@ -38,7 +40,7 @@ class _Base:
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    disabled = Column(Boolean, nullable=True, default=None)
+    disabled = Column(Boolean, nullable=True, default=False)
 
 
 Base = declarative_base(cls=_Base, metadata=meta)
@@ -63,6 +65,19 @@ class RegistryTable(Base):  # FilesTable
     extension: str = Column(String, nullable=False)
     type: str = Column(String, nullable=False)
     url: str = Column(String, nullable=False)
+
+    user_id: int = Column(ForeignKey(UsersTable.id), nullable=False)
+
+    user: "Mapped[UsersTable]" = relationship("UsersTable", uselist=False)
+
+
+class HorizonTable(Base):
+    __tablename__ = "horizon"
+
+    icon: String = Column(String, nullable=True)
+    name: String = Column(String, nullable=True, default="My Horizon")
+    shared: Boolean = Column(Boolean, nullable=False, default=False)
+
     user_id: int = Column(ForeignKey(UsersTable.id), nullable=False)
 
     user: "Mapped[UsersTable]" = relationship("UsersTable", uselist=False)
@@ -82,12 +97,14 @@ class ModelsTable(Base):
     version: float = Column(Float, nullable=False, default=1.0)
     dropped_columns = Column(PickleType, nullable=True)
     prediction_input_fields = Column(PickleType, nullable=True)
+    status = Column(String, nullable=True)
 
     registry_id: int = Column(ForeignKey(RegistryTable.id), nullable=False)
     inherited_from_id: int = Column(
         ForeignKey(RegistryTable.id), nullable=True
     )
     user_id: int = Column(ForeignKey(UsersTable.id), nullable=False)
+    horizon_id: int = Column(ForeignKey(HorizonTable.id), nullable=False)
 
     registry: "Mapped[RegistryTable]" = relationship(
         "RegistryTable", foreign_keys=[registry_id], uselist=False
@@ -97,6 +114,9 @@ class ModelsTable(Base):
     )
     user: "Mapped[UsersTable]" = relationship(
         "UsersTable", foreign_keys=[user_id], uselist=False
+    )
+    horizon: "Mapped[HorizonTable]" = relationship(
+        "HorizonTable", foreign_keys=[horizon_id], uselist=False
     )
 
 

@@ -33,6 +33,7 @@ app: FastAPI = application_factory(
         presentation.authentication.rest.router,
         presentation.users.rest.router,
         presentation.registry.rest.router,
+        presentation.horizon.rest.router,
         presentation.models.rest.router,
     ),
     startup_tasks=[],
