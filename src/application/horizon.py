@@ -17,7 +17,9 @@ async def get(horizon_id: int, user_id: int) -> HorizonFlat:
 
     try:
         async with transaction():
-            _horizon: HorizonFlat = await HorizonRepository().get(id_=horizon_id)
+            _horizon: HorizonFlat = await HorizonRepository().get(
+                id_=horizon_id
+            )
             if _horizon.user_id != user_id:
                 raise AuthorizationError(message="Access denied.")
             return _horizon

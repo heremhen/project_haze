@@ -17,6 +17,6 @@ celery_app = Celery(
     broker_transport_options={
         "max_retries": 1,
         "visibility_timeout": 365 * 24 * 60 * 60,
-        "broker_connection_retry_on_startup": True,
     },
+    broker_connection_retry_on_startup=True,
 )

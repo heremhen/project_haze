@@ -1,8 +1,9 @@
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import Field
 
-from src.domain.models import PipelineTypeEnum, TimeBudgetEnum, StatusType
+from src.domain.models import PipelineTypeEnum, StatusType, TimeBudgetEnum
 from src.infrastructure.application import PublicEntity
 
 
@@ -32,9 +33,12 @@ class ModelsPublic(_ModelsBase):
     """The internal application representation."""
 
     id: int
-    prediction_input_fields: Optional[dict]
+    status: Optional[StatusType]
+    disabled: bool
+    created_at: datetime
+    updated_at: datetime
     css_background: Optional[str]
-    status: Optional[str]
+    prediction_input_fields: Optional[dict]
 
 
 class ModelsPublicEssentials(PublicEntity):
@@ -48,3 +52,5 @@ class ModelsPublicEssentials(PublicEntity):
     version: Optional[float]
     css_background: Optional[str]
     horizon_id: int
+    created_at: datetime
+    updated_at: datetime

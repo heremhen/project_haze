@@ -1,6 +1,5 @@
+from datetime import datetime
 from typing import Optional
-
-from pydantic import Field
 
 from src.infrastructure.application import InternalEntity
 
@@ -26,3 +25,5 @@ class HorizonFlat(_HorizonBase):
 
     id: int
     user_id: Optional[int]
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]

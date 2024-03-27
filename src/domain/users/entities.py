@@ -1,10 +1,11 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import Field
 
 from src.infrastructure.application import InternalEntity
 
-__all__ = ("UserUncommited", "UserFlat", "UserWithoutPassword")
+__all__ = ("UserUncommited", "UserFlat")
 
 
 class UserUncommited(InternalEntity):
@@ -21,9 +22,6 @@ class UserFlat(UserUncommited):
     """Existed user representation."""
 
     id: int
-
-
-class UserWithoutPassword(UserFlat):
-    """User representation without password."""
-
-    password: Optional[str] = None
+    password: Optional[str]
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]

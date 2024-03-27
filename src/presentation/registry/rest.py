@@ -15,7 +15,7 @@ from src.presentation.registry.contracts import RegistryPublic
 router = APIRouter(prefix="/r", tags=["Files"])
 
 
-@router.get("/cdn/{name}", response_class=FileResponse)
+@router.get("/cdn/{dir}", response_class=FileResponse)
 async def get_file(name: str):
     """Get a file."""
     path = f"static/public/{name}"
@@ -69,14 +69,14 @@ async def store_uploadfiles(
     return ResponseMulti[RegistryPublic](result=_registry)
 
 
-@router.put("", status_code=status.HTTP_200_OK)
+@router.put("/{registry_id}", status_code=status.HTTP_200_OK)
 async def update_stored_files(
     user: UserFlat = Depends(authentication.get_current_user),
 ):
     raise NotImplementedError()
 
 
-@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{registry_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_files(
     user: UserFlat = Depends(authentication.get_current_user),
 ):

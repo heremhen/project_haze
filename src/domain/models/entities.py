@@ -1,7 +1,6 @@
+from datetime import datetime
 from enum import Enum, IntEnum
 from typing import List, Optional
-
-from pydantic import Field
 
 from src.infrastructure.application import InternalEntity
 
@@ -12,6 +11,7 @@ __all__ = (
     "StatusType",
     "PipelineTypeEnum",
     "AutoMLDeps",
+    "ModelsUncommitedOptional",
 )
 
 
@@ -61,6 +61,12 @@ class _ModelsBase(InternalEntity):
 class ModelsUncommited(_ModelsBase):
     """This schema is used for creating instance in the database."""
 
+    pass
+
+
+class ModelsUncommitedOptional(_ModelsBase):
+    """This schema is used for creating instance in the database."""
+
     target_attribute: Optional[str]
     pipeline_type: Optional[PipelineTypeEnum]
     pipeline_route: Optional[str]
@@ -75,6 +81,8 @@ class ModelsFlat(_ModelsBase):
     """Existed model representation."""
 
     id: int
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
 
 class AutoMLDeps(InternalEntity):

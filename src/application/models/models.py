@@ -6,7 +6,12 @@ from src.application.models.pipeline_utils import (
     calculate_prediction_input_fields,
     generate_unique_path,
 )
-from src.domain.models import ModelsFlat, ModelsRepository, ModelsUncommited
+from src.domain.models import (
+    ModelsFlat,
+    ModelsRepository,
+    ModelsUncommited,
+    ModelsUncommitedOptional,
+)
 from src.domain.models.aggregates import Model_
 from src.domain.models.entities import AutoMLDeps, StatusType
 from src.domain.registry import RegistryFlat, RegistryRepository
@@ -73,7 +78,6 @@ async def create(
             raise UnprocessableError(
                 message=f"Invalid payload for AutoML: {e}"
             )
-        auto_ml_task = auto_ml__.delay(deps_dict=automl_deps.model_dump())
         prediction_inputs = calculate_prediction_input_fields(
             data.url, payload["target_attribute"]
         )
@@ -89,6 +93,10 @@ async def create(
                 ),
             )
             rich_model: Model_ = await repository.get(model_flat.id)
+            print(model_flat.id)
+            auto_ml__.delay(
+                deps_dict=automl_deps.model_dump(), model_id=model_flat.id
+            )
         except DatabaseError as e:
             raise UnprocessableError(message=f"Could not create model: {e}")
 
@@ -111,7 +119,7 @@ async def update(
 
             # Validate payload
             try:
-                validated_payload = ModelsUncommited(**payload)
+                validated_payload = ModelsUncommitedOptional(**payload)
             except ValidationError as e:
                 raise UnprocessableError(
                     message=f"Invalid payload for AutoML: {e}"

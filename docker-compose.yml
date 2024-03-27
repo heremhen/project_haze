@@ -11,6 +11,7 @@ services:
       - .env
     volumes:
       - .:/app
+      - pip_cache:/root/.cache/pip
     environment:
       - "ollama/api=http://ollama:11434/api"
     extra_hosts:
@@ -74,4 +75,5 @@ networks:
     external: false
 
 volumes:
+  pip_cache:
   ollama: {}

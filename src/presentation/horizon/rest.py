@@ -35,6 +35,7 @@ async def read_horizon(
     horizon_id: int,
     user: UserFlat = Depends(authentication.get_current_user),
 ) -> Response[HorizonPublic]:
+    """Read an horizon."""
 
     _horizon: HorizonFlat = await horizon.get(
         horizon_id=horizon_id,
@@ -48,6 +49,7 @@ async def read_horizon(
 async def read_all_horizon(
     user: UserFlat = Depends(authentication.get_current_user),
 ) -> ResponseMulti[HorizonPublic]:
+    """Read horizons."""
 
     _horizon: list[HorizonFlat] = await horizon.get_all(
         user_id=user.id,
@@ -61,6 +63,8 @@ async def update_horizon(
     horizon_id,
     user: UserFlat = Depends(authentication.get_current_user),
 ):
+    """Update horizons."""
+
     raise NotImplementedError()
 
 
@@ -69,4 +73,6 @@ async def remove_horizon(
     horizon_id,
     user: UserFlat = Depends(authentication.get_current_user),
 ):
+    """Remove horizons."""
+
     raise NotImplementedError()

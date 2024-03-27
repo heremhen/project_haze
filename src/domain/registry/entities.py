@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import Field
@@ -29,3 +30,5 @@ class RegistryFlat(_RegistryBase):
     """Database record representation."""
 
     id: int
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]

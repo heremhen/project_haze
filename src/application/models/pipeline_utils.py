@@ -1,3 +1,4 @@
+import asyncio
 import locale
 import os
 import pickle
@@ -10,12 +11,20 @@ from flaml import AutoML
 from sklearn.model_selection import train_test_split
 
 from src.celery.app import celery_app
-from src.domain.models import AutoMLDeps, StatusType
+from src.domain.models import (
+    AutoMLDeps,
+    ModelsFlat,
+    ModelsRepository,
+    StatusType,
+)
+from src.domain.models.aggregates import Model_
 from src.infrastructure.application import (
     BadRequestError,
+    DatabaseError,
     NotFoundError,
     UnprocessableError,
 )
+from src.infrastructure.database import transaction
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -62,9 +71,36 @@ def save_model_to_path(automl, path: str):
         pickle.dump(automl, f, pickle.HIGHEST_PROTOCOL)
 
 
+async def update_model_status(model_id, status):
+    """Update the status of the model in the database."""
+
+    async with transaction():
+        try:
+            model_flat: ModelsFlat = await ModelsRepository().update(
+                key="id", value=model_id, payload={"status": status}
+            )
+            rich_model: Model_ = await ModelsRepository().get(model_flat.id)
+        except DatabaseError as e:
+            raise UnprocessableError(
+                message=f"Could not update model status: {e}"
+            )
+
+
 @celery_app.task(name="auto_ml__")
-def auto_ml__(deps_dict: dict):
+def auto_ml__(deps_dict: dict, model_id: int):
     """Trains model based on the dataset."""
+
+    def on_success(model_id):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            update_model_status(model_id, StatusType.success)
+        )
+
+    def on_failure(exc, model_id):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            update_model_status(model_id, StatusType.failed)
+        )
 
     try:
         deps = AutoMLDeps(**deps_dict)
@@ -128,9 +164,9 @@ def auto_ml__(deps_dict: dict):
             **automl_settings,
         )
         save_model_to_path(automl, deps.pipeline_route)
-        # Change ModelsTable's status to StatusType.success
+        on_success(model_id)
     except Exception as e:
-        # Change ModelsTable's status to StatusType.failed
+        on_failure(e, model_id)
         raise UnprocessableError(message=str(e))
 
 
@@ -176,4 +212,4 @@ async def predict_model_pipeline(new_data, path: str) -> list:
     except FileNotFoundError:
         raise NotFoundError(message="Model doesn't exist.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        raise UnprocessableError(message=str(e))

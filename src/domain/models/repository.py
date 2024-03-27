@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, Any, Union
+from typing import Any, AsyncGenerator, Union
 
 from sqlalchemy import and_
 from sqlalchemy.exc import NoResultFound
@@ -6,7 +6,7 @@ from sqlalchemy.exc import NoResultFound
 from src.infrastructure.application import NotFoundError
 from src.infrastructure.database import BaseRepository, ModelsTable
 
-from .entities import ModelsFlat, ModelsUncommited
+from .entities import ModelsFlat, ModelsUncommited, ModelsUncommitedOptional
 
 all = ("ModelsRepository",)
 
@@ -37,9 +37,9 @@ class ModelsRepository(BaseRepository[ModelsTable]):
         self,
         key: str,
         value: Any,
-        payload: Union[dict[str, Any], ModelsUncommited],
+        payload: Union[dict[str, Any], ModelsUncommitedOptional],
     ) -> ModelsFlat:
-        if isinstance(payload, ModelsUncommited):
+        if isinstance(payload, ModelsUncommitedOptional):
             payload = payload.model_dump()
         try:
             instance: ModelsTable = await self._update(key, value, payload)
