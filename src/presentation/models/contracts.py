@@ -15,7 +15,9 @@ class _ModelsBase(PublicEntity):
     time_budget: Optional[TimeBudgetEnum] = Field(
         default=TimeBudgetEnum.normal
     )
-    pipeline_type: PipelineTypeEnum = Field(...)
+    pipeline_type: Optional[PipelineTypeEnum] = Field(
+        default=PipelineTypeEnum.auto
+    )
     version: Optional[float] = Field(default=1.0)
     dropped_columns: Optional[List[str]] = Field(default=[])
     registry_id: int = Field(...)

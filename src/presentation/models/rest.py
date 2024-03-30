@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, status
 
 from src.application import authentication, models
@@ -60,13 +62,13 @@ async def read_model(
 @router.get("", status_code=status.HTTP_200_OK)
 async def read_all_model(
     user: UserFlat = Depends(authentication.get_current_user),
+    limit: Optional[int] = None,
+    status: Optional[str] = None,
 ) -> ResponseMulti[ModelsPublicEssentials]:
     """Read models."""
-
     _models: list[ModelsFlat] = await models.get_all(
-        user_id=user.id,
+        user_id=user.id, limit=limit, status=status
     )
-
     return ResponseMulti[ModelsPublicEssentials](result=_models)
 
 

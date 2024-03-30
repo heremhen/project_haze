@@ -1,8 +1,4 @@
-from src.domain.users import (
-    UserFlat,
-    UsersRepository,
-    UserUncommited,
-)
+from src.domain.users import UserFlat, UsersRepository, UserUncommited
 from src.infrastructure.application.errors.entities import (
     BadRequestError,
     DatabaseError,

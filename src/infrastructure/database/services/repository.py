@@ -120,10 +120,11 @@ class BaseRepository(Session, Generic[ConcreteTable]):
     #         yield schema
 
     async def _all(
-        self, condition=None
+        self, condition=None, query=None
     ) -> AsyncGenerator[ConcreteTable, None]:
-        query = select(self.schema_class)
-        if condition:
+        if query is None:
+            query = select(self.schema_class)
+        if condition is not None:
             query = query.where(condition)
         result: Result = await self.execute(query)
         schemas = result.scalars().all()

@@ -1,12 +1,17 @@
-from typing import Any, AsyncGenerator, Union
+from typing import Any, AsyncGenerator, Optional, Union
 
-from sqlalchemy import and_
+from sqlalchemy import and_, select
 from sqlalchemy.exc import NoResultFound
 
 from src.infrastructure.application import NotFoundError
 from src.infrastructure.database import BaseRepository, ModelsTable
 
-from .entities import ModelsFlat, ModelsUncommited, ModelsUncommitedOptional
+from .entities import (
+    ModelsFlat,
+    ModelsUncommited,
+    ModelsUncommitedOptional,
+    StatusType,
+)
 
 all = ("ModelsRepository",)
 
@@ -27,10 +32,20 @@ class ModelsRepository(BaseRepository[ModelsTable]):
         return ModelsFlat.model_validate(instance)
 
     async def all_by_user(
-        self, user_id: int
+        self,
+        user_id: int,
+        limit: Optional[int] = None,
+        status: Optional[StatusType] = None,
     ) -> AsyncGenerator[ModelsFlat, None]:
-        condition = and_(self.schema_class.user_id == user_id)
-        async for instance in self._all(condition):
+        query = select(self.schema_class).where(
+            self.schema_class.user_id == user_id
+        )
+        if status is not None:
+            query = query.where(self.schema_class.status == status)
+        query = query.order_by(self.schema_class.updated_at.desc())
+        if limit is not None:
+            query = query.limit(limit)
+        async for instance in self._all(query=query):
             yield ModelsFlat.model_validate(instance)
 
     async def update(

@@ -26,6 +26,7 @@ class TimeBudgetEnum(IntEnum):
 class PipelineTypeEnum(str, Enum):
     """Train types."""
 
+    auto = "auto"
     classification = "classification"
     regression = "regression"
 

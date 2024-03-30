@@ -1,3 +1,6 @@
+from typing import Optional
+
+from loguru import logger
 from pydantic import ValidationError
 
 from src.application.models.colorful_util import generate_css
@@ -39,13 +42,17 @@ async def get(model_id: int, user_id: int) -> ModelsFlat:
         raise NotFoundError(message="Model not found.")
 
 
-async def get_all(user_id: int) -> list[ModelsFlat]:
+async def get_all(
+    user_id: int, limit: Optional[int] = None, status: Optional[str] = None
+) -> list[ModelsFlat]:
     """Get all models from the database."""
 
     async with transaction():
         return [
             model
-            async for model in ModelsRepository().all_by_user(user_id=user_id)
+            async for model in ModelsRepository().all_by_user(
+                user_id=user_id, limit=limit, status=status
+            )
         ]
 
 
@@ -93,7 +100,6 @@ async def create(
                 ),
             )
             rich_model: Model_ = await repository.get(model_flat.id)
-            print(model_flat.id)
             auto_ml__.delay(
                 deps_dict=automl_deps.model_dump(), model_id=model_flat.id
             )
