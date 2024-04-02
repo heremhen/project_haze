@@ -11,7 +11,7 @@ scripts:
     - python -m black ./src
     - python -m isort ./src
   check.types: python -m mypy --check-untyped-defs ./src
-  check:  # Execute in order seperately
+  check:
     - python -m ruff ./src
     - python -m black --check ./src
     - python -m isort --check ./src

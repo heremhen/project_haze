@@ -7,21 +7,20 @@ services:
     ports:
       - 5000:8000
       - 5556:5555
+    healthcheck:
+      test: curl --fail http://localhost:5000/health || exit 1
+      interval: 10s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
     env_file:
       - .env
     volumes:
       - .:/app
-      - pip_cache:/root/.cache/pip
-    environment:
-      - "ollama/api=http://ollama:11434/api"
-    extra_hosts:
-      - host.docker.internal:host-gateway
+      - pip-cache:/root/.cache/pip
     restart: always
     depends_on:
       - celerybackend
-      - ollamabackend
-    networks:
-      - hazel-haze-docker
 
   celerybackend:
     image: redis:latest
@@ -34,46 +33,15 @@ services:
       timeout: 30s
       retries: 50
     restart: unless-stopped
-    depends_on:
-      - ollamabackend
-    networks:
-      - hazel-haze-docker
-
-  ollamabackend:
-    image: ollama/ollama:latest
-    container_name: hazy_ollama
-    volumes:
-      - ollama:/root/.ollama
-    ports:
-      - 11434:11434
-    pull_policy: always
-    tty: true
-    restart: always
-    networks:
-      - hazel-haze-docker
-
-  # ollamabackend:
-  #   volumes:
-  #     - ollama:/root/.ollama
-  #   container_name: hazy_ollama
-  #   pull_policy: always
-  #   tty: true
-  #   restart: unless-stopped
-  #   image: ollama/ollama:latest
-  #   ports:
-  #     - 11434:11434
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             count: 1
-  #             capabilities: [gpu]
-
-networks:
-  hazel-haze-docker:
-    external: false
+    deploy:
+      resources:
+        limits:
+          cpus: 2
+          memory: 512M
+        reservations:
+          cpus: 1
+          memory: 256M
 
 volumes:
-  pip_cache:
-  ollama: {}
+  pip-cache:
+    name: pip-cache

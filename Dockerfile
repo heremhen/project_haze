@@ -1,46 +1,30 @@
-# Base image
-FROM python:3.11.7-slim
+FROM python:3.12.2-slim as builder
 
-# set work directory
 WORKDIR /app
 
-# set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 VOLUME /root/.cache/pip
 
-# install dependencies
-COPY requirements/main.txt requirements/main.txt
-COPY requirements/dev.txt requirements/dev.txt
-COPY [  \
-    "./alembic.ini", \
-    "./static", \
-    "./pyproject.toml", \
-    "./run.sh", \
-    "./" \
-    ]
-RUN apt-get update && \
-    apt-get install -y libgomp1 && \
-    # curl gnupg g++ gdb make ninja-build rsync zip && \
-    # curl -fsSL https://ollama.com/install.sh | sh && \
-    pip install --upgrade pip && \
-    pip install --cache-dir=/root/.cache/pip -r requirements/main.txt -r requirements/dev.txt
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libgomp1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# # Configure NVIDIA Container Toolkit (if GPU ver.)
-# RUN curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
-#     && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
-#     sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-#     tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-# RUN apt-get update && \
-#     apt-get install -y nvidia-container-toolkit && \
-#     nvidia-ctk runtime configure --runtime=docker
+COPY requirements/main.txt .
+COPY requirements/dev.txt .
 
-# copy project
-COPY ./src ./src
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r main.txt -r dev.txt
 
-# Make run.sh executable
+COPY . .
+
 RUN chmod +x ./run.sh
 
-# Set entrypoint
-ENTRYPOINT bash ./run.sh
+RUN addgroup --gid 1001 --system hazel && \
+    adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group hazel
+
+ENTRYPOINT ["./run.sh"]
+USER hazel
