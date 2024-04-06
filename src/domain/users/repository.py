@@ -25,3 +25,7 @@ class UsersRepository(BaseRepository[UsersTable]):
     async def get_by_username(self, username_: str) -> UserFlat:
         instance = await self._get(key="username", value=username_)
         return UserFlat.model_validate(instance)
+
+    async def get_by_email(self, email_: str) -> UserFlat:
+        instance = await self._get(key="email", value=email_)
+        return UserFlat.model_validate(instance)

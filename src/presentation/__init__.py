@@ -3,6 +3,7 @@ from . import (  # noqa: F401
     health,
     horizon,
     models,
+    predict,
     registry,
     users,
 )

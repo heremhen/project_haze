@@ -35,9 +35,11 @@ async def token_claim(
     """Claim for access and refresh tokens."""
 
     try:
-        user: UserFlat = await authenticate_user(schema.login, schema.password)
+        user: UserFlat = await authenticate_user(
+            email=schema.login, password=schema.password
+        )
         if not user:
-            raise AuthenticationError(message="Incorrect username or password")
+            raise AuthenticationError(message="Incorrect login or password")
         refresh_token_expires = timedelta(days=7)
         refresh_token = create_refresh_token(
             data={"sub": user.username},
@@ -54,7 +56,7 @@ async def token_claim(
             "refresh": refresh_token,
         }
     except NotFoundError:
-        raise AuthenticationError(message="Incorrect username or password")
+        raise AuthenticationError(message="Incorrect login or password")
 
     _tokens_public = TokenClaimPublic.model_validate(_tokens)
     return Response[TokenClaimPublic](result=_tokens_public)

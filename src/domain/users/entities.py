@@ -13,7 +13,7 @@ class UserUncommited(InternalEntity):
 
     username: str
     password: str
-    email: Optional[str]
+    email: str
     full_name: Optional[str]
     disabled: Optional[bool] = False
 

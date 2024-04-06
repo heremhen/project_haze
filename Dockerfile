@@ -21,10 +21,13 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . .
 
-RUN chmod +x ./run.sh
+# RUN alembic revision --autogenerate && alembic upgrade head
 
-RUN addgroup --gid 1001 --system hazel && \
-    adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group hazel
+RUN chmod +x ./run.sh && \
+    addgroup --gid 1001 --system hazel && \
+    adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group hazel && \
+    chown hazel:hazel ./static && \
+    chown hazel:hazel db.sqlite3
 
 ENTRYPOINT ["./run.sh"]
 USER hazel

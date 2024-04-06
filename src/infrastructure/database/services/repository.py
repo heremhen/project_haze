@@ -109,7 +109,7 @@ class BaseRepository(Session, Generic[ConcreteTable]):
             await self._session.flush()
             await self._session.refresh(schema)
             return schema
-        except self._ERRORS:
+        except self._ERRORS as e:
             raise DatabaseError
 
     # async def _all(self) -> AsyncGenerator[ConcreteTable, None]:

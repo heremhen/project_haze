@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, File, UploadFile, status
 from fastapi.responses import FileResponse
 
 from src.application import authentication, registry
+from src.config import settings
 from src.domain.registry.aggregates import Registry
 from src.domain.registry.entities import RegistryFlat
 from src.domain.users import UserFlat
@@ -15,10 +16,11 @@ from src.presentation.registry.contracts import RegistryPublic
 router = APIRouter(prefix="/r", tags=["Files"])
 
 
-@router.get("/cdn/{dir}", response_class=FileResponse)
+@router.get("/cdn", response_class=FileResponse)
 async def get_file(name: str):
     """Get a file."""
-    path = f"static/public/{name}"
+
+    path = f"{settings.root_dir}/static/{name}"
     if not os.path.exists(path):
         raise NotFoundError(message="File not found")
     return FileResponse(path)

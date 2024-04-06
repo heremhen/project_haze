@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Optional, Union
 
 from fastapi import Depends
@@ -51,16 +51,22 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(username: str) -> UserFlat:
+async def get_user(username: str = None, email: str = None) -> UserFlat:
     async with transaction():
-        user = await UsersRepository().get_by_username(username_=username)
+        if username is not None:
+            user = await UsersRepository().get_by_username(username_=username)
+        else:
+            user = await UsersRepository().get_by_email(email_=email)
     return user
 
 
 async def authenticate_user(
-    username: str, password: str
+    password: str, username: str = None, email: str = None
 ) -> Union[UserFlat, False]:
-    user = await get_user(username)
+    if username is not None:
+        user = await get_user(username=username)
+    else:
+        user = await get_user(email=email)
     if not user or not verify_password(password, user.password):
         return False
     return user
@@ -71,9 +77,9 @@ def create_refresh_token(
 ) -> str:
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(days=7)
+        expire = datetime.now(UTC) + timedelta(days=7)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, secret_key, algorithm="HS256")
 
@@ -83,9 +89,9 @@ def create_access_token(
 ) -> str:
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(UTC) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode,

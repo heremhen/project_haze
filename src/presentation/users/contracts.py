@@ -8,7 +8,7 @@ from src.infrastructure.application import InternalEntity
 
 class _UserBase(InternalEntity):
     username: str
-    email: Optional[str] = Field(default=None)
+    email: str
     full_name: Optional[str] = Field(default=None)
 
 

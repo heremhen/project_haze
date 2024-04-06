@@ -12,6 +12,7 @@ from loguru import logger
 from sklearn.model_selection import train_test_split
 
 from src.celery.app import celery_app
+from src.config import settings
 from src.domain.models import (
     AutoMLDeps,
     ModelsFlat,
@@ -45,7 +46,8 @@ def load_dataset(data_url) -> pd.DataFrame:
     for encoding in ["utf-8", "latin1", "iso-8859-1"]:
         try:
             dataset = pd.read_csv(
-                f"static/datasets/{data_url}", encoding=encoding
+                f"{settings.root_dir}/static/datasets/{data_url}",
+                encoding=encoding,
             )
             return dataset
         except UnicodeDecodeError:
@@ -58,7 +60,7 @@ def load_dataset(data_url) -> pd.DataFrame:
 def generate_unique_path() -> str:
     """Generates a unique path for saving the model."""
 
-    directory = "static/pipelines"
+    directory = f"{settings.root_dir}/static/pipelines"
     if not os.path.exists(directory):
         os.makedirs(directory)
     path = f"{directory}/{str(uuid.uuid4())}.pkl"
@@ -142,6 +144,7 @@ def auto_ml__(deps_dict: dict, model_id: int):
     try:
         deps = AutoMLDeps(**deps_dict)
         train_data = load_dataset(deps.dataset_url)
+        train_data.columns = train_data.columns.str.strip()
         try:
             X = train_data.drop([deps.target], axis=1)
             data_type = str(train_data[deps.target].dtype)
@@ -171,6 +174,7 @@ def calculate_prediction_input_fields(dataset_url, target) -> dict:
     """Generate prediction inputs from a dataset for web."""
 
     data = load_dataset(dataset_url)
+    data.columns = data.columns.str.strip()
     prediction_input_fields_info = {}
     for column in data.columns:
         if column == target:
@@ -199,11 +203,15 @@ def calculate_prediction_input_fields(dataset_url, target) -> dict:
     return prediction_input_fields_info
 
 
-async def predict_model_pipeline(new_data, path: str) -> list:
+async def predict_model_pipeline(new_data: pd.DataFrame, path: str) -> list:
     """Predicts from from trained model using input datasets."""
 
     try:
-        automl = pickle.load(open(f"static/{path}", "rb"))
+        automl = pickle.load(open(f"{path}", "rb"))
+        model_features = automl.feature_names_in_
+        print(new_data)
+        print(model_features)
+        print(new_data.columns)
         y_pred = automl.predict(new_data)
         return y_pred.tolist()
     except FileNotFoundError:

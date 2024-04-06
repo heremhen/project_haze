@@ -21,6 +21,7 @@ __all__ = (
     "ModelsTable",
     "HorizonTable",
     "ModelsReportTable",
+    "ModelsPredictTable",
 )
 
 meta = MetaData(
@@ -141,6 +142,22 @@ class ModelsReportTable(Base):
     registry: "Mapped[RegistryTable]" = relationship(
         "RegistryTable", foreign_keys=[registry_id], uselist=False
     )
+    pipeline: "Mapped[ModelsTable]" = relationship(
+        "ModelsTable", foreign_keys=[models_id], uselist=False
+    )
+    user: "Mapped[UsersTable]" = relationship(
+        "UsersTable", foreign_keys=[user_id], uselist=False
+    )
+
+
+class ModelsPredictTable(Base):
+    __tablename__ = "models_predict"
+
+    results = Column(PickleType, nullable=True)
+
+    models_id: int = Column(ForeignKey(ModelsTable.id), nullable=True)
+    user_id: int = Column(ForeignKey(UsersTable.id), nullable=False)
+
     pipeline: "Mapped[ModelsTable]" = relationship(
         "ModelsTable", foreign_keys=[models_id], uselist=False
     )
