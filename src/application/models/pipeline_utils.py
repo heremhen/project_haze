@@ -208,10 +208,6 @@ async def predict_model_pipeline(new_data: pd.DataFrame, path: str) -> list:
 
     try:
         automl = pickle.load(open(f"{path}", "rb"))
-        model_features = automl.feature_names_in_
-        print(new_data)
-        print(model_features)
-        print(new_data.columns)
         y_pred = automl.predict(new_data)
         return y_pred.tolist()
     except FileNotFoundError:

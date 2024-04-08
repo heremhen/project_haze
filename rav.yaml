@@ -21,7 +21,10 @@ scripts:
   tests.unit: python -m pytest -vvv -x ./src/tests/unit
   tests.integration: python -m pytest -vvv -x ./src/tests/integration
   deps.generate: python -m pip freeze > my_deps.txt
-  docker.build: docker-compose up --build
+  docker.build: 
+    - alembic revision --autogenerate
+    - alembic upgrade head
+    - docker-compose up --build
   docker.up: docker-compose up -d
   docker.down: docker-compose down
   docker.mistral: docker exec -it hazy_ollama ollama run mistral:latest

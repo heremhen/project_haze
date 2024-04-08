@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import List
 
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -102,6 +103,7 @@ class Settings(BaseSettings):
     public_api: PublicApiSettings = PublicApiSettings()
     logging: LoggingSettings = LoggingSettings()
     authentication: AuthenticationSettings = AuthenticationSettings()
+    origins: List[str] = ["*"]
 
 
 # ======================================

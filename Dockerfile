@@ -21,8 +21,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . .
 
-# RUN alembic revision --autogenerate && alembic upgrade head
-
 RUN chmod +x ./run.sh && \
     addgroup --gid 1001 --system hazel && \
     adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group hazel && \
