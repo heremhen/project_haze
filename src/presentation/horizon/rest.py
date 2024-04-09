@@ -1,15 +1,17 @@
 from fastapi import APIRouter, Depends, status
 
-from src.application import authentication, horizon
+from src.application import authentication, horizon, models
 from src.domain.horizon import HorizonFlat
+from src.domain.models.entities import ModelsFlat
 from src.domain.users import UserFlat
 from src.infrastructure.application import (
     NotFoundError,
     Response,
     ResponseMulti,
 )
+from src.presentation.models.contracts import ModelsPublicEssentials
 
-from .contracts import HorizonCreateRequestBody, HorizonPublic
+from .contracts import HorizonCreateRequestBody, HorizonPublic, HorizonsPublic
 
 router = APIRouter(prefix="/horizon", tags=["Horizon"])
 
@@ -18,7 +20,7 @@ router = APIRouter(prefix="/horizon", tags=["Horizon"])
 async def create_horizon(
     schema: HorizonCreateRequestBody,
     user: UserFlat = Depends(authentication.get_current_user),
-) -> Response[HorizonPublic]:
+) -> Response[HorizonsPublic]:
     """Create a new horizon."""
 
     _horizon: HorizonFlat = await horizon.create(
@@ -27,7 +29,7 @@ async def create_horizon(
     )
     _horizon_public = HorizonPublic.model_validate(_horizon)
 
-    return Response[HorizonPublic](result=_horizon_public)
+    return Response[HorizonsPublic](result=_horizon_public)
 
 
 @router.get("/{horizon_id}", status_code=status.HTTP_200_OK)
@@ -41,21 +43,29 @@ async def read_horizon(
         horizon_id=horizon_id,
         user_id=user.id,
     )
+    _models: list[ModelsFlat] = await models.get_all(
+        user_id=user.id, horizon_id=horizon_id
+    )
+    model_dumps = [
+        ModelsPublicEssentials(**model.model_dump()) for model in _models
+    ]
 
-    return Response[HorizonPublic](result=_horizon)
+    return Response[HorizonPublic](
+        result=HorizonPublic(**_horizon.model_dump(), models=model_dumps)
+    )
 
 
 @router.get("", status_code=status.HTTP_200_OK)
 async def read_all_horizon(
     user: UserFlat = Depends(authentication.get_current_user),
-) -> ResponseMulti[HorizonPublic]:
+) -> ResponseMulti[HorizonsPublic]:
     """Read horizons."""
 
     _horizon: list[HorizonFlat] = await horizon.get_all(
         user_id=user.id,
     )
 
-    return ResponseMulti[HorizonPublic](result=_horizon)
+    return ResponseMulti[HorizonsPublic](result=_horizon)
 
 
 @router.put("/{horizon_id}", status_code=status.HTTP_200_OK)

@@ -43,7 +43,10 @@ async def get(model_id: int, user_id: int) -> ModelsFlat:
 
 
 async def get_all(
-    user_id: int, limit: Optional[int] = None, status: Optional[str] = None
+    user_id: int,
+    horizon_id: Optional[int] = None,
+    limit: Optional[int] = None,
+    status: Optional[str] = None,
 ) -> list[ModelsFlat]:
     """Get all models from the database."""
 
@@ -51,7 +54,10 @@ async def get_all(
         return [
             model
             async for model in ModelsRepository().all_by_user(
-                user_id=user_id, limit=limit, status=status
+                user_id=user_id,
+                limit=limit,
+                status=status,
+                horizon_id=horizon_id,
             )
         ]
 

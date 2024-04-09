@@ -34,6 +34,7 @@ class ModelsRepository(BaseRepository[ModelsTable]):
     async def all_by_user(
         self,
         user_id: int,
+        horizon_id: Optional[int] = None,
         limit: Optional[int] = None,
         status: Optional[StatusType] = None,
     ) -> AsyncGenerator[ModelsFlat, None]:
@@ -45,6 +46,8 @@ class ModelsRepository(BaseRepository[ModelsTable]):
         query = query.order_by(self.schema_class.updated_at.desc())
         if limit is not None:
             query = query.limit(limit)
+        if horizon_id is not None:
+            query = query.where(self.schema_class.horizon_id == horizon_id)
         async for instance in self._all(query=query):
             yield ModelsFlat.model_validate(instance)
 

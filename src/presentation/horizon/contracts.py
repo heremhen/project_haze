@@ -1,8 +1,9 @@
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import Field
 
 from src.infrastructure.application import PublicEntity
+from src.presentation.models.contracts import ModelsPublicEssentials
 
 
 class _HorizonBase(PublicEntity):
@@ -17,7 +18,13 @@ class HorizonCreateRequestBody(_HorizonBase):
     pass
 
 
-class HorizonPublic(_HorizonBase):
+class HorizonsPublic(_HorizonBase):
     """The internal application representation."""
 
     id: int
+
+
+class HorizonPublic(HorizonsPublic):
+    """The internal application representation."""
+
+    models: Optional[List[ModelsPublicEssentials]]

@@ -62,12 +62,14 @@ async def read_model(
 @router.get("", status_code=status.HTTP_200_OK)
 async def read_all_model(
     user: UserFlat = Depends(authentication.get_current_user),
+    horizon_id: Optional[int] = None,
     limit: Optional[int] = None,
     status: Optional[str] = None,
 ) -> ResponseMulti[ModelsPublicEssentials]:
     """Read models."""
+
     _models: list[ModelsFlat] = await models.get_all(
-        user_id=user.id, limit=limit, status=status
+        user_id=user.id, horizon_id=horizon_id, limit=limit, status=status
     )
     return ResponseMulti[ModelsPublicEssentials](result=_models)
 
