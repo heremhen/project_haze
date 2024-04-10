@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 
-from sqlalchemy import and_
+from sqlalchemy import and_, select
 
 from src.infrastructure.database import BaseRepository, HorizonTable
 
@@ -27,6 +27,9 @@ class HorizonRepository(BaseRepository[HorizonTable]):
     async def all_by_user(
         self, user_id: int
     ) -> AsyncGenerator[HorizonFlat, None]:
-        condition = and_(self.schema_class.user_id == user_id)
-        async for instance in self._all(condition):
+        query = select(self.schema_class).where(
+            self.schema_class.user_id == user_id
+        )
+        query = query.order_by(self.schema_class.updated_at.desc())
+        async for instance in self._all(query=query):
             yield HorizonFlat.model_validate(instance)
