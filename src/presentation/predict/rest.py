@@ -57,12 +57,12 @@ async def read_prediction(
 async def read_all_predictions(
     user: UserFlat = Depends(authentication.get_current_user),
     limit: Optional[int] = None,
-    status: Optional[str] = None,
 ) -> ResponseMulti[PredictPublic]:
     """Read prediction."""
 
     _predict: list[PredictFlat] = await predict.get_all(
-        user_id=user.id, limit=limit, status=status
+        user_id=user.id,
+        limit=limit,
     )
     return ResponseMulti[PredictPublic](result=_predict)
 

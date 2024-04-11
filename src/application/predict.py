@@ -1,3 +1,4 @@
+from typing import Optional
 import pandas as pd
 
 from src.application.models import predict_model_pipeline
@@ -59,3 +60,19 @@ async def create(
             )
             rich_predict: Predict_ = await repository.get(predict_flat.id)
     return rich_predict
+
+
+async def get_all(
+    user_id: int,
+    limit: Optional[int] = None,
+) -> list[ModelsFlat]:
+    """Get all models from the database."""
+
+    async with transaction():
+        return [
+            model
+            async for model in PredictRepository().all_by_user(
+                user_id=user_id,
+                limit=limit,
+            )
+        ]

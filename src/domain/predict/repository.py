@@ -1,6 +1,7 @@
-from typing import Any, AsyncGenerator, Union
+from typing import Any, AsyncGenerator, Optional, Union
 
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy import select
 
 from src.infrastructure.application import NotFoundError
 from src.infrastructure.database import BaseRepository, ModelsPredictTable
@@ -40,3 +41,20 @@ class PredictRepository(BaseRepository[ModelsPredictTable]):
             return PredictFlat.model_validate(instance)
         except NoResultFound:
             raise NotFoundError(f"No model found with {key} = {value}")
+
+    async def all_by_user(
+        self,
+        user_id: int,
+        horizon_id: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> AsyncGenerator[PredictFlat, None]:
+        query = select(self.schema_class).where(
+            self.schema_class.user_id == user_id
+        )
+        query = query.order_by(self.schema_class.updated_at.desc())
+        if limit is not None:
+            query = query.limit(limit)
+        if horizon_id is not None:
+            query = query.where(self.schema_class.horizon_id == horizon_id)
+        async for instance in self._all(query=query):
+            yield PredictFlat.model_validate(instance)
