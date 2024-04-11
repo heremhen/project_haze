@@ -27,7 +27,7 @@ async def create_horizon(
         user_id=user.id,
         payload=schema.model_dump(),
     )
-    _horizon_public = HorizonPublic.model_validate(_horizon)
+    _horizon_public = HorizonsPublic.model_validate(_horizon)
 
     return Response[HorizonsPublic](result=_horizon_public)
 
