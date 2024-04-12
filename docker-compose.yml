@@ -7,6 +7,8 @@ services:
     ports:
       - 5000:8000
       - 5556:5555
+    environment:
+      - CELERY__BROKER_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@celerybackend:5672//
     healthcheck:
       test: curl --fail http://localhost:5000/health || exit 1
       interval: 10s
@@ -18,30 +20,37 @@ services:
     volumes:
       - .:/app
       - pip-cache:/root/.cache/pip
+    networks:
+      - hazy_network
     restart: always
     depends_on:
       - celerybackend
 
   celerybackend:
-    image: redis:latest
-    container_name: hazy_redis
+    image: rabbitmq:management-alpine
+    container_name: hazy_rabbitmq
     ports:
-      - 6379:6379
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "rabbitmqctl", "status"]
       interval: 5s
       timeout: 30s
       retries: 50
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: 2
-          memory: 512M
-        reservations:
-          cpus: 1
-          memory: 256M
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    restart: always
+    networks:
+      - hazy_network
 
 volumes:
   pip-cache:
     name: pip-cache
+
+networks:
+  hazy_network:
+    external: true

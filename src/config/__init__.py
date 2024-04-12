@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import List
 
@@ -65,8 +66,8 @@ class AuthenticationSettings(BaseModel):
 class CelerySettings(BaseModel):
     """Configure celery redis settings."""
 
-    broker_url: str = ""
-    result_backend: str = ""
+    broker_url: str = os.getenv('CELERY__BROKER_URL', 'amqp://rabbitmq:rabbitmq@localhost:5672//')
+    result_backend: str = "db+sqlite:///results.sqlite3"
 
 
 # Define the root path
