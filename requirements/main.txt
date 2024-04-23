@@ -20,7 +20,9 @@ pandas
 numpy
 scikit-learn
 catboost
-# ydata-profiling[unicode]==4.6.5
+setuptools
+ydata-profiling[unicode]
+beautifulsoup4
 
 ### Tabular joblings ###
 flower

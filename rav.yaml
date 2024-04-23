@@ -24,6 +24,7 @@ scripts:
   docker.build: 
     - alembic revision --autogenerate
     - alembic upgrade head
+    - docker network create hazy_network
     - docker-compose up --build
   docker.up: docker-compose up -d
   docker.down: docker-compose down

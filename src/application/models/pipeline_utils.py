@@ -90,14 +90,18 @@ async def update_model_status(model_id, status):
 
 
 def get_automl_settings(deps: AutoMLDeps, data_type: str) -> dict:
+    task = "classification"
+    if data_type in ["int64", "float64"]:
+        task = "regression"
+    # metric_constraints = [("train_loss", "<=", 0.1), ("val_loss", "<=", 0.1)]
     automl_settings = {
         "time_budget": deps.time_budget,
-        "task": (
-            "regression"
-            if data_type in ["int64", "float64"]
-            else "classification"
-        ),
-        "metric": ("r2" if data_type in ["int64", "float64"] else "accuracy"),
+        "task": task,
+        "metric": "auto",
+        # "max_iter": 100,
+        # "train_time_limit": 9,
+        # "metric_constraints": metric_constraints,
+        # "pred_time_limit": 1e-3,
     }
     return automl_settings
 
@@ -125,6 +129,21 @@ def get_automl_settings_with_pipeline(
     return automl_settings
 
 
+def convert_column_to_numeric(column: pd.Series) -> pd.Series:
+    try:
+        return pd.to_numeric(column)
+    except ValueError:
+        pass
+
+    try:
+        column = column.str.replace(",", ".")
+        return pd.to_numeric(column)
+    except ValueError:
+        pass
+
+    return column
+
+
 @celery_app.task(name="auto_ml__")
 def auto_ml__(deps_dict: dict, model_id: int):
     """Trains model based on the dataset."""
@@ -147,7 +166,9 @@ def auto_ml__(deps_dict: dict, model_id: int):
         train_data.columns = train_data.columns.str.strip()
         try:
             X = train_data.drop([deps.target], axis=1)
+            train_data[deps.target] = convert_column_to_numeric(train_data[deps.target])
             data_type = str(train_data[deps.target].dtype)
+            logger.critical(f"The data type of {deps.target} is {data_type}")
         except KeyError:
             raise NotFoundError(message=f"{deps.target} not found in axis")
         y = train_data[deps.target]
@@ -162,6 +183,7 @@ def auto_ml__(deps_dict: dict, model_id: int):
         automl.fit(
             X_train=X_train,
             y_train=y_train,
+            time_budget=deps.time_budget,
             **automl_settings,
         )
         save_model_to_path(automl, deps.pipeline_route)

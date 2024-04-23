@@ -18,9 +18,9 @@ __all__ = (
 class TimeBudgetEnum(IntEnum):
     """Train time by seconds."""
 
-    quick = 1
-    normal = 100
-    compact = 500
+    quick = 61
+    normal = 181
+    compact = 602
 
 
 class PipelineTypeEnum(str, Enum):

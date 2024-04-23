@@ -134,6 +134,7 @@ class ModelsReportTable(Base):
     alerts = Column(PickleType, nullable=True)
     sample = Column(PickleType, nullable=True)
     duplicates = Column(PickleType, nullable=True)
+    report_route = Column(String, nullable=True)
 
     registry_id: int = Column(ForeignKey(RegistryTable.id), nullable=False)
     models_id: int = Column(ForeignKey(ModelsTable.id), nullable=True)
