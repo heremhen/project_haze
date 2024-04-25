@@ -95,7 +95,6 @@ def get_automl_settings(deps: AutoMLDeps, data_type: str) -> dict:
         task = "regression"
     # metric_constraints = [("train_loss", "<=", 0.1), ("val_loss", "<=", 0.1)]
     automl_settings = {
-        "time_budget": deps.time_budget,
         "task": task,
         "metric": "auto",
         # "max_iter": 100,
@@ -185,6 +184,7 @@ def auto_ml__(deps_dict: dict, model_id: int):
             y_train=y_train,
             time_budget=deps.time_budget,
             **automl_settings,
+
         )
         save_model_to_path(automl, deps.pipeline_route)
         on_success(model_id)

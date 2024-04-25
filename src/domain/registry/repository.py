@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 
-from sqlalchemy import and_
+from sqlalchemy import select
 
 from src.infrastructure.database import BaseRepository, RegistryTable
 
@@ -31,6 +31,9 @@ class RegistryRepository(BaseRepository[RegistryTable]):
     async def all_by_user(
         self, user_id: int
     ) -> AsyncGenerator[RegistryFlat, None]:
-        condition = and_(self.schema_class.user_id == user_id)
-        async for instance in self._all(condition):
+        query = select(self.schema_class).where(
+            self.schema_class.user_id == user_id
+        )
+        query = query.order_by(self.schema_class.created_at.desc())
+        async for instance in self._all(query=query):
             yield RegistryFlat.model_validate(instance)
