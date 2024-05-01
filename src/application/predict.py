@@ -66,6 +66,7 @@ async def create(
 async def get_all(
     user_id: int,
     limit: Optional[int] = None,
+    models_id: Optional[int] = None,
 ) -> list[ModelsFlat]:
     """Get all models from the database."""
 
@@ -75,5 +76,6 @@ async def get_all(
             async for model in PredictRepository().all_by_user(
                 user_id=user_id,
                 limit=limit,
+                models_id=models_id,
             )
         ]

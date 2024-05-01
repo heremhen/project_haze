@@ -56,13 +56,15 @@ async def read_prediction(
 @router.get("", status_code=status.HTTP_200_OK)
 async def read_all_predictions(
     user: UserFlat = Depends(authentication.get_current_user),
+    models_id: Optional[int] = None,
     limit: Optional[int] = None,
 ) -> ResponseMulti[PredictPublic]:
-    """Read prediction."""
+    """Read predictions."""
 
     _predict: list[PredictFlat] = await predict.get_all(
         user_id=user.id,
         limit=limit,
+        models_id=models_id,
     )
     return ResponseMulti[PredictPublic](result=_predict)
 

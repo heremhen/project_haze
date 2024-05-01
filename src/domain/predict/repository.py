@@ -45,7 +45,7 @@ class PredictRepository(BaseRepository[ModelsPredictTable]):
     async def all_by_user(
         self,
         user_id: int,
-        horizon_id: Optional[int] = None,
+        models_id: Optional[int] = None,
         limit: Optional[int] = None,
     ) -> AsyncGenerator[PredictFlat, None]:
         query = select(self.schema_class).where(
@@ -54,7 +54,7 @@ class PredictRepository(BaseRepository[ModelsPredictTable]):
         query = query.order_by(self.schema_class.updated_at.desc())
         if limit is not None:
             query = query.limit(limit)
-        if horizon_id is not None:
-            query = query.where(self.schema_class.horizon_id == horizon_id)
+        if models_id is not None:
+            query = query.where(self.schema_class.models_id == models_id)
         async for instance in self._all(query=query):
             yield PredictFlat.model_validate(instance)
