@@ -8,7 +8,17 @@ from src.domain.registry import (
     RegistryUncommited,
 )
 from src.domain.registry.aggregates import Registry
+from src.infrastructure.application import AuthorizationError
 from src.infrastructure.database import transaction
+
+
+async def get(key: str, value: str, user_id: int) -> RegistryFlat:
+    async with transaction():
+        repo = RegistryRepository()
+        registry: RegistryFlat = await repo.get_by_key(key, value)
+        if registry.user_id != user_id:
+            raise AuthorizationError(message="Access denied.")
+        return registry
 
 
 async def get_all(user_id: int) -> list[RegistryFlat]:

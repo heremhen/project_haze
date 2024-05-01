@@ -5,11 +5,12 @@ import pickle
 import uuid
 import warnings
 
-import numpy as np
 import pandas as pd
+from bs4 import BeautifulSoup
 from flaml import AutoML
 from loguru import logger
 from sklearn.model_selection import train_test_split
+from ydata_profiling import ProfileReport
 
 from src.celery.app import celery_app
 from src.config import settings
@@ -41,9 +42,11 @@ __all__ = (
     "save_model_to_path",
 )
 
+codecs = ["utf-8", "latin1", "iso-8859-1"]
+
 
 def load_dataset(data_url) -> pd.DataFrame:
-    for encoding in ["utf-8", "latin1", "iso-8859-1"]:
+    for encoding in codecs:
         try:
             dataset = pd.read_csv(
                 f"{settings.root_dir}/static/datasets/{data_url}",
@@ -55,6 +58,59 @@ def load_dataset(data_url) -> pd.DataFrame:
     raise UnprocessableError(
         message="Unable to decode the CSV file using supported encodings."
     )
+
+
+def replace_a_tag_with_text(html_file, new_text):
+    with open(html_file, "r") as file:
+        html_content = file.read()
+    soup = BeautifulSoup(html_content, "html.parser")
+    a_tags = soup.find_all("a")
+
+    for a_tag in a_tags:
+        if "href" in a_tag.attrs:
+            if a_tag[
+                "href"
+            ] == "https://github.com/ydataai/ydata-profiling" or a_tag[
+                "href"
+            ].startswith(
+                "data:text/plain;charset=utf-8,%7B"
+            ):
+                a_tag.string.replace_with(new_text)
+
+    with open(html_file, "w") as file:
+        file.write(str(soup))
+
+
+async def generate_report(
+    title: str,
+    df: pd.DataFrame,
+    registry_id: int,
+    model_id: int,
+):
+    report_ = ProfileReport(
+        df,
+        title=f"{title} Report",
+        minimal=True,
+        explorative=True,
+        # config_file=f"{settings.root_dir}/static/config_min.yaml",
+    )
+    folder_id = str(uuid.uuid4())
+    directory = f"{settings.root_dir}/static/report/{folder_id}"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    # report_.to_file(f"{directory}/report.json")
+    report_.config.html.minify_html = False
+    report_.to_file(f"{directory}/report.html")
+    replace_a_tag_with_text(
+        f"{directory}/report.html",
+        "Hazel Haze",
+    )
+    schema = {
+        "models_id": model_id,
+        "registry_id": registry_id,
+        "report_route": f"static/report/{folder_id}/report.html",
+    }
+    return schema
 
 
 def generate_unique_path() -> str:
@@ -165,7 +221,9 @@ def auto_ml__(deps_dict: dict, model_id: int):
         train_data.columns = train_data.columns.str.strip()
         try:
             X = train_data.drop([deps.target], axis=1)
-            train_data[deps.target] = convert_column_to_numeric(train_data[deps.target])
+            train_data[deps.target] = convert_column_to_numeric(
+                train_data[deps.target]
+            )
             data_type = str(train_data[deps.target].dtype)
             logger.critical(f"The data type of {deps.target} is {data_type}")
         except KeyError:
@@ -182,9 +240,9 @@ def auto_ml__(deps_dict: dict, model_id: int):
         automl.fit(
             X_train=X_train,
             y_train=y_train,
-            time_budget=deps.time_budget,
+            # time_budget=deps.time_budget,
+            time_budget=1,
             **automl_settings,
-
         )
         save_model_to_path(automl, deps.pipeline_route)
         on_success(model_id)

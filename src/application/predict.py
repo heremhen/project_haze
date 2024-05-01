@@ -1,4 +1,5 @@
 from typing import Optional
+
 import pandas as pd
 
 from src.application.models import predict_model_pipeline

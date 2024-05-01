@@ -66,7 +66,9 @@ class AuthenticationSettings(BaseModel):
 class CelerySettings(BaseModel):
     """Configure celery redis settings."""
 
-    broker_url: str = os.getenv('CELERY__BROKER_URL', 'amqp://rabbitmq:rabbitmq@localhost:5672//')
+    broker_url: str = os.getenv(
+        "CELERY__BROKER_URL", "amqp://rabbitmq:rabbitmq@localhost:5672//"
+    )
     result_backend: str = "db+sqlite:///results.sqlite3"
 
 

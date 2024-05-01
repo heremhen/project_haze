@@ -1,7 +1,7 @@
 from typing import Any, AsyncGenerator, Optional, Union
 
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
 
 from src.infrastructure.application import NotFoundError
 from src.infrastructure.database import BaseRepository, ModelsPredictTable

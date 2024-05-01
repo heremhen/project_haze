@@ -3,11 +3,14 @@ from typing import Optional
 from loguru import logger
 from pydantic import ValidationError
 
+from src.application import report
 from src.application.models.colorful_util import generate_css
 from src.application.models.pipeline_utils import (
     auto_ml__,
     calculate_prediction_input_fields,
+    generate_report,
     generate_unique_path,
+    load_dataset,
 )
 from src.domain.models import (
     ModelsFlat,
@@ -18,6 +21,7 @@ from src.domain.models import (
 from src.domain.models.aggregates import Model_
 from src.domain.models.entities import AutoMLDeps, StatusType
 from src.domain.registry import RegistryFlat, RegistryRepository
+from src.domain.report import ModelsReportRepository, ModelsReportUncommited
 from src.domain.users import UserFlat
 from src.infrastructure.application import (
     AuthorizationError,
@@ -106,6 +110,18 @@ async def create(
                 ),
             )
             rich_model: Model_ = await repository.get(model_flat.id)
+            train_data = load_dataset(data.url)
+            report_schema = await generate_report(
+                payload["name"],
+                train_data,
+                payload["registry_id"],
+                rich_model.id,
+            )
+            schema_final = ModelsReportUncommited(
+                **report_schema, user_id=user.id
+            )
+            repo = ModelsReportRepository()
+            report = await repo.create(schema_final)
             auto_ml__.delay(
                 deps_dict=automl_deps.model_dump(), model_id=model_flat.id
             )

@@ -37,3 +37,7 @@ class RegistryRepository(BaseRepository[RegistryTable]):
         query = query.order_by(self.schema_class.created_at.desc())
         async for instance in self._all(query=query):
             yield RegistryFlat.model_validate(instance)
+
+    async def get_by_key(self, key: str, value: str) -> RegistryFlat:
+        instance = await self._get(key=key, value=value)
+        return RegistryFlat.model_validate(instance)
