@@ -10,6 +10,7 @@ services:
     environment:
       - CELERY__BROKER_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@celerybackend:5672//
       - FLOWER_UNAUTHENTICATED_API=true
+      - TZ=Asia/Ulaanbaatar
     healthcheck:
       test: curl --fail http://localhost:5000/health || exit 1
       interval: 10s

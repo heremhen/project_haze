@@ -7,7 +7,7 @@ check_status() {
     fi
 }
 
-celery -A src.celery.app worker -l info -c 1 &
+celery -A src.celery.app worker -l info -c 2 &
 # celery -A src.celery.app worker -l info --concurrency=2 -O fair -P prefork --without-gossip --pool=gevent &
 check_status "Starting Celery worker"
 
