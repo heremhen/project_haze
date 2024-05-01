@@ -242,8 +242,7 @@ def auto_ml__(deps_dict: dict, model_id: int):
         automl.fit(
             X_train=X_train,
             y_train=y_train,
-            # time_budget=deps.time_budget,
-            time_budget=1,
+            time_budget=deps.time_budget,
             **automl_settings,
         )
         save_model_to_path(automl, deps.pipeline_route)
