@@ -44,6 +44,8 @@ class ModelsReportPublicEssentials(PublicEntity):
     report_route: Optional[str]
     models_id: Optional[int]
     registry_id: int
+    model_name: Optional[str]
+    registry_name: Optional[str]
     disabled: bool
     created_at: datetime
     updated_at: datetime

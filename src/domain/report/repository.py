@@ -1,12 +1,15 @@
 from typing import Any, AsyncGenerator, Optional, Union
 
-from sqlalchemy import desc, or_, select
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
 from src.infrastructure.application import NotFoundError
 from src.infrastructure.database import BaseRepository, ModelsReportTable
 
-from .entities import ModelsReportFlat, ModelsReportUncommited
+from .entities import (
+    ModelsReportFlat,
+    ModelsReportUncommited,
+)
 
 all = ("ModelsReportRepository",)
 

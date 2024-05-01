@@ -14,7 +14,6 @@ class ModelsReport_(ModelsReportFlat):
     and nested data report from other domains.
     """
 
-    report: ModelsReportFlat
     model: Optional[ModelsFlat]
     registry: RegistryFlat
     user: UserFlat

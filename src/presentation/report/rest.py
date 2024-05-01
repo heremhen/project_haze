@@ -3,14 +3,9 @@ from typing import Optional
 from fastapi import APIRouter, Depends, status
 
 from src.application import authentication, report
-from src.domain.report import ModelsReportFlat
+from src.domain.report import ModelsReport_, ModelsReportFlat
 from src.domain.users import UserFlat
-from src.infrastructure.application import (
-    BadRequestError,
-    NotFoundError,
-    Response,
-    ResponseMulti,
-)
+from src.infrastructure.application import Response, ResponseMulti
 
 from .contracts import (
     ModelsReportCreateRequestBody,
@@ -58,7 +53,7 @@ async def read_all_reports(
 ) -> ResponseMulti[ModelsReportPublicEssentials]:
     """Read report."""
 
-    _report: list[ModelsReportFlat] = await report.get_all(
+    _report: list[dict] = await report.get_all(
         user_id=user.id,
         limit=limit,
     )
