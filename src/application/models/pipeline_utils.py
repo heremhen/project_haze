@@ -68,14 +68,16 @@ def replace_a_tag_with_text(html_file, new_text):
 
     for a_tag in a_tags:
         if "href" in a_tag.attrs:
-            if a_tag[
-                "href"
-            ] == "https://github.com/ydataai/ydata-profiling" or a_tag[
-                "href"
-            ].startswith(
-                "data:text/plain;charset=utf-8,%7B"
+            if (
+                a_tag["href"] == "https://github.com/ydataai/ydata-profiling"
+                or a_tag["href"].startswith(
+                    "data:text/plain;charset=utf-8,%7B"
+                )
+                or a_tag["href"].startswith("https://ydata.ai/")
             ):
                 a_tag.string.replace_with(new_text)
+                a_tag["href"] = "#"
+                del a_tag["target"]
 
     with open(html_file, "w") as file:
         file.write(str(soup))
